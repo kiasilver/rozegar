@@ -1,0 +1,120 @@
+import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { jwtVerify } from "jose";
+import { prisma } from "@/lib/core/prisma";
+import { getSchedulerStatus, getIranTime } from "@/lib/automation/telegram/daily-prices-scheduler";
+
+async function verifyJWT(token: string) {
+  const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
+  const { payload } = await jwtVerify(token, secret);
+  return payload as { userId: number; role?: string };
+}
+
+/**
+ * GET: ?????? ????? ????? ????? ?????? ???? ???
+ */
+export async function GET(req: NextRequest) {
+  try {
+    const token = (await cookies()).get("session")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { role } = await verifyJWT(token);
+    if (role !== "Admin" && role !== "Super Admin") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    // ?????? ????? scheduler
+    const schedulerStatus = getSchedulerStatus();
+    const iranTime = getIranTime();
+
+    // ?????? ???????
+    const settings = await prisma.unifiedRSSSettings.findFirst({
+      orderBy: { created_at: 'desc' },
+    });
+
+    let dailyPricesAutoSend = false;
+    let dailyPricesSchedule: number[] = [];
+    let isActive = false;
+
+    if (settings) {
+      isActive = settings.is_active || false;
+      dailyPricesAutoSend = (settings as any).daily_prices_auto_send || false;
+      
+      if ((settings as any).daily_prices_schedule) {
+        try {
+          const schedule = typeof (settings as any).daily_prices_schedule === 'string'
+            ? JSON.parse((settings as any).daily_prices_schedule)
+            : (settings as any).daily_prices_schedule;
+          if (Array.isArray(schedule)) {
+            dailyPricesSchedule = schedule;
+          }
+        } catch (e) {
+          console.error("Error parsing daily_prices_schedule:", e);
+        }
+      }
+    }
+
+    // ?????? ???? ????? ????
+    const now = new Date();
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Asia/Tehran',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
+    const parts = formatter.formatToParts(now);
+    const currentHour = parseInt(parts.find(p => p.type === 'hour')?.value || '0', 10);
+    const currentMinute = parseInt(parts.find(p => p.type === 'minute')?.value || '0', 10);
+
+    let nextSendTime: string | null = null;
+    let nextSendHour: number | null = null;
+    
+    if (dailyPricesSchedule.length > 0) {
+      // ???? ???? ???? ???? ?? schedule
+      const sortedSchedule = [...dailyPricesSchedule].sort((a, b) => a - b);
+      const nextHour = sortedSchedule.find(h => h > currentHour) || sortedSchedule[0];
+      nextSendHour = nextHour;
+      
+      if (nextHour > currentHour) {
+        // ?????
+        nextSendTime = `${String(nextHour).padStart(2, '0')}:00`;
+      } else if (nextHour === currentHour && currentMinute < 0) {
+        // ???? ???? (??? ???? ????? 0 ??????)
+        nextSendTime = `${String(nextHour).padStart(2, '0')}:00`;
+      } else {
+        // ????
+        nextSendTime = `???? ${String(nextHour).padStart(2, '0')}:00`;
+      }
+    }
+
+    return NextResponse.json({
+      success: true,
+      status: {
+        isRunning: schedulerStatus.isRunning,
+        lastCheckMinute: schedulerStatus.lastCheckMinute,
+        iranTime,
+        currentHour,
+        currentMinute,
+        settings: {
+          isActive,
+          dailyPricesAutoSend,
+          dailyPricesSchedule,
+          scheduleCount: dailyPricesSchedule.length,
+        },
+        nextSendTime,
+        nextSendHour,
+        isEnabled: isActive && dailyPricesAutoSend && dailyPricesSchedule.length > 0,
+      },
+    });
+  } catch (error: any) {
+    console.error("Error fetching daily prices status:", error);
+    return NextResponse.json(
+      {
+        error: error.message || "??? ?? ?????? ?????",
+      },
+      { status: 500 }
+    );
+  }
+}

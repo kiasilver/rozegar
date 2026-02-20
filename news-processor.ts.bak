@@ -1,0 +1,172 @@
+/**
+ * News Processor for Telegram
+ * Handles sending news to Telegram with image and watermark support
+ */
+
+import { sendTelegramPhoto, sendTelegramMessage } from './telegram-bot';
+import { summarizeNewsForTelegram } from './telegram-agent';
+// We need to import extractMetadata. Since we are in lib/automation/telegram, we go up to lib/content/media
+import { extractMetadata } from '../../content/media/html-media-extractor';
+
+export class DuplicateNewsError extends Error {
+  constructor(message: string = 'Duplicate news detected') {
+    super(message);
+    this.name = 'DuplicateNewsError';
+  }
+}
+
+export interface SendNewsOptions {
+  botToken: string;
+  channelId: string;
+  content: string;
+  imageUrl?: string;
+  sourceUrl?: string;
+  enableWatermark?: boolean;
+  watermarkPath?: string | null;
+}
+
+export interface SendNewsResult {
+  success: boolean;
+  messageId?: number;
+  error?: string;
+}
+
+export interface NewsProcessingOptions {
+  siteUrl?: string;
+  telegramSiteUrl?: string;
+  categoryName?: string;
+  rssImageUrl?: string;
+  enableVideo?: boolean;
+}
+
+export interface ProcessedNews {
+  message: string;
+  imageUrl?: string;
+  videoUrl?: string;
+  hashtags?: string[];
+}
+
+/**
+ * Process news for Telegram: Fetch content, summarize, prepare message
+ */
+export async function processNewsForTelegram(
+  url: string,
+  title: string,
+  options: NewsProcessingOptions = {}
+): Promise<ProcessedNews | null> {
+
+  let fullContent = title;
+  let extractedImage = options.rssImageUrl;
+
+  try {
+    const response = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 (compatible; RozegharBot/1.0)' } });
+    if (response.ok) {
+      const html = await response.text();
+
+      // Extract metadata if image missing
+      if (!extractedImage) {
+        const metadata = await extractMetadata(url, html);
+        extractedImage = metadata.image || undefined;
+      }
+
+      // Basic text extraction for summary
+      // We strip typical script/style tags
+      fullContent = html.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, "")
+        .replace(/<style\b[^>]*>([\s\S]*?)<\/style>/gim, "")
+        .replace(/<[^>]+>/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+  } catch (e) {
+    console.error("Error processing news content:", e);
+  }
+
+  const summary = await summarizeNewsForTelegram(
+    fullContent,
+    title,
+    800, // Max length
+    options.categoryName,
+    url
+  );
+
+  if (!summary) return null;
+
+  const message = `<b>${title}</b>\n\n${summary}`;
+
+  return {
+    message,
+    imageUrl: extractedImage
+  };
+}
+
+/**
+ * ارسال خبر به تلگرام با عکس و watermark
+ */
+export async function sendNewsToTelegram(
+  options: SendNewsOptions
+): Promise<SendNewsResult> {
+  try {
+    const {
+      botToken,
+      channelId,
+      content,
+      imageUrl,
+      sourceUrl,
+      enableWatermark = false,
+      watermarkPath,
+    } = options;
+
+    // ساخت caption با لینک منبع
+    let caption = content;
+    if (sourceUrl) {
+      caption += `\n\n🔗 منبع: ${sourceUrl}`;
+    }
+
+    // ارسال با عکس یا بدون عکس
+    if (imageUrl) {
+      const result = await sendTelegramPhoto(
+        botToken,
+        channelId,
+        imageUrl,
+        caption,
+        {
+          enableWatermark,
+          logoPath: watermarkPath || undefined,
+        }
+      );
+
+      if (!result.success) {
+        return {
+          success: false,
+          error: result.error || 'Failed to send photo to Telegram',
+        };
+      }
+
+      return {
+        success: true,
+        messageId: result.message_id,
+      };
+    } else {
+      // ارسال فقط متن
+      const result = await sendTelegramMessage(botToken, channelId, caption);
+
+      if (!result.success) {
+        return {
+          success: false,
+          error: result.error || 'Failed to send message to Telegram',
+        };
+      }
+
+      return {
+        success: true,
+        messageId: result.message_id,
+      };
+    }
+  } catch (error: any) {
+    console.error('[News Processor] Error sending to Telegram:', error);
+    return {
+      success: false,
+      error: error.message || 'Unknown error',
+    };
+  }
+}

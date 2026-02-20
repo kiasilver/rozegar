@@ -1,0 +1,69 @@
+import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import { jwtVerify } from "jose";
+import { getAISettings, getProviderConfig } from "@/lib/ai/ai-settings";
+import { getCachedRepositories, getRepositoriesWithFallback } from "@/lib/cursor-repositories-cache";
+
+async function verifyJWT(token: string) {
+  const secret = new TextEncoder().encode(process.env.JWT_SECRET!);
+  const { payload } = await jwtVerify(token, secret);
+  return payload as { userId: number; role?: string };
+}
+
+/**
+ * GET /api/v1/admin/legacy/repositories
+ * ?????? ???? Repository ??? ???? ?? Cursor
+ * 
+ * ?? ???: ??? endpoint ??????? rate ??? ????:
+ * - ?????? 1 request ?? ?????
+ * - ?????? 30 request ?? ????
+ * - ???? ??? ????? ????? ??? ????
+ * 
+ * ??? endpoint ?????? ??? ? ???? ?? Usage-based pricing ?????
+ */
+export async function GET() {
+  try {
+    const token = (await cookies()).get("session")?.value;
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    await verifyJWT(token);
+
+    const aiSettings = await getAISettings();
+    const cursorConfig = getProviderConfig(aiSettings, "cursor");
+
+    if (!cursorConfig?.apiKey) {
+      return NextResponse.json(
+        { error: "Cursor API Key not configured" },
+        { status: 400 }
+      );
+    }
+
+    // ??????? ?? cache ?? fallback
+    // ??? cache ????? ???? ?? ?? ??????? ??????
+    // ??? cache ???? ?? expired? ?? API ???? ??????? ? cache ??????
+    const repositories = await getRepositoriesWithFallback(cursorConfig.apiKey);
+
+    // ????? ????? ??? cache ??????? ??? ?? ??
+    const cached = await getCachedRepositories();
+    const isFromCache = cached !== null && cached.length === repositories.length;
+
+    return NextResponse.json({
+      success: true,
+      repositories,
+      count: repositories.length,
+      cached: isFromCache,
+    });
+  } catch (error: any) {
+    console.error("Error fetching Cursor repositories:", error);
+    // Gracefully handle error - return empty array
+    return NextResponse.json({
+      success: false,
+      error: "Internal Server Error",
+      message: error.message,
+      repositories: [],
+      count: 0,
+    }, { status: 500 });
+  }
+}

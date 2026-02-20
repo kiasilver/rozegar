@@ -1,0 +1,539 @@
+@import 'tailwindcss';
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* برای ایجاد ظاهر شیک لودینگ */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.lineHeightN {
+  line-height: normal !important;
+}
+
+.spinner {
+  border: 4px solid transparent;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes gradient-animation {
+  0% {
+    border-image-source: linear-gradient(to right, #465fff, #ff5f56);
+  }
+
+  50% {
+    border-image-source: linear-gradient(to right, #6a11cb, #2575fc);
+  }
+
+  100% {
+    border-image-source: linear-gradient(to right, #465fff, #ff5f56);
+  }
+}
+
+.animate-gradient-x {
+  border-image: linear-gradient(to right, #465fff, #ff5f56);
+  border-image-slice: 1;
+  animation: gradient-animation 3s ease infinite;
+}
+
+
+.animate-gradient {
+  animation: gradient-border 4s ease infinite;
+  background-size: 400% 400%;
+}
+
+@custom-variant dark (&:is(.dark *));
+
+html[lang="fa"] {
+  direction: rtl;
+  font-family: var(--Vazir);
+}
+
+h3 {
+  font-weight: 600 !important;
+}
+
+:root {
+  /* Blue & Teal */
+
+  /* --primary-color: #205781;
+  --secondary-color: #4F959D;
+  --tertiary-color: #98D2C0;
+  --quaternary-color: #F6F8D5;  */
+
+  /* Red */
+
+  /* --primary-color: #7D0A0A;
+  --secondary-color: #BF3131;
+  --tertiary-color: #EAD196;
+  --quaternary-color: #EEEEEE; */
+
+
+  /* Blue Gold */
+
+  /* --primary-color: #102E50;
+  --secondary-color: #F5C45E;
+  --tertiary-color: #E78B48;
+  --quaternary-color: #BE3D2A; */
+
+
+
+  /* Teal */
+
+  --primary-color: #034C53;
+  --secondary-color: #007074;
+  --tertiary-color: #F38C79;
+  --quaternary-color: #FFC1B4;
+
+}
+
+
+.bg-primary {
+  background-color: var(--primary-color);
+}
+
+.bg-secondary {
+  background-color: var(--secondary-color);
+}
+
+.bg-success {
+  background-color: var(--color-success-500);
+}
+
+.bg-warning {
+  background-color: var(--color-warning-500);
+}
+
+.bg-info {
+  background-color: var(--color-theme-purple-500);
+}
+
+.bg-tertiary {
+  background-color: var(--tertiary-color);
+}
+
+.bg-quaternary {
+  background-color: var(--quaternary-color);
+}
+
+/* Text Colors */
+.text-primary {
+  color: var(--primary-color);
+}
+
+.text-secondary {
+  color: var(--secondary-color);
+}
+
+.text-tertiary {
+  color: var(--tertiary-color);
+}
+
+.text-quaternary {
+  color: var(--quaternary-color);
+}
+
+/* Border Colors */
+.border-primary {
+  border-color: var(--primary-color);
+}
+
+.border-secondary {
+  border-color: var(--secondary-color);
+}
+
+.border-tertiary {
+  border-color: var(--tertiary-color);
+}
+
+.border-quaternary {
+  border-color: var(--quaternary-color);
+}
+
+/* Ring Colors (used with Tailwind ring utilities) */
+.ring-primary {
+  --tw-ring-color: var(--primary-color);
+}
+
+.ring-secondary {
+  --tw-ring-color: var(--secondary-color);
+}
+
+.ring-tertiary {
+  --tw-ring-color: var(--tertiary-color);
+}
+
+.ring-quaternary {
+  --tw-ring-color: var(--quaternary-color);
+}
+
+/* Outline Color (for accessibility/focus styles) */
+.outline-primary {
+  outline-color: var(--primary-color);
+}
+
+.outline-secondary {
+  outline-color: var(--secondary-color);
+}
+
+.outline-tertiary {
+  outline-color: var(--tertiary-color);
+}
+
+.outline-quaternary {
+  outline-color: var(--quaternary-color);
+}
+
+.hover\:bg-primary:hover {
+  background-color: var(--primary-color);
+}
+
+.hover\:text-primary:hover {
+  color: var(--primary-color);
+}
+
+.hover\:border-primary:hover {
+  border-color: var(--primary-color);
+}
+
+.focus\:ring-primary:focus {
+  --tw-ring-color: var(--primary-color);
+}
+
+.focus\:outline-primary:focus {
+  outline-color: var(--primary-color);
+}
+
+/* Sidebar Menu Styles - Vertical Icon Layout */
+.side-menu__item {
+  @apply relative flex items-center gap-3 px-3 py-3 text-sm font-medium transition-colors rounded-lg;
+  @apply text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800;
+}
+
+.side-menu__item .side-menu__icon {
+  @apply text-gray-600 dark:text-gray-400;
+}
+
+.side-menu__item .side-menu__label {
+  @apply text-gray-700 dark:text-gray-300 text-sm;
+}
+
+/* Collapsed state - Vertical layout (icon top, text bottom) */
+.app-sidebar:not([data-expanded="true"]) .side-menu__item,
+.app-sidebar[data-expanded="false"] .side-menu__item {
+  @apply flex-col justify-center gap-1.5 py-3 px-2;
+}
+
+.app-sidebar:not([data-expanded="true"]) .side-menu__icon,
+.app-sidebar[data-expanded="false"] .side-menu__icon {
+  @apply w-5 h-5;
+}
+
+.app-sidebar:not([data-expanded="true"]) .side-menu__label,
+.app-sidebar[data-expanded="false"] .side-menu__label {
+  @apply text-sm text-center;
+}
+
+/* Active state - Purple background */
+.side-menu__item.active,
+.side-menu__item.active.open {
+  @apply bg-purple-500 text-white;
+}
+
+.side-menu__item.active .side-menu__icon,
+.side-menu__item.active.open .side-menu__icon {
+  @apply text-white;
+}
+
+.side-menu__item.active .side-menu__label,
+.side-menu__item.active.open .side-menu__label {
+  @apply text-white;
+}
+
+.side-menu__item.active:hover,
+.side-menu__item.active.open:hover {
+  @apply bg-purple-600;
+}
+
+/* Bottom menu items */
+.doublemenu_bottom-menu .side-menu__item {
+  @apply w-full;
+}
+
+.doublemenu_bottom-menu .side-menu__icon {
+  @apply w-5 h-5;
+}
+
+.app-sidebar:not([data-expanded="true"]) .doublemenu_bottom-menu .side-menu__item,
+.app-sidebar[data-expanded="false"] .doublemenu_bottom-menu .side-menu__item {
+  @apply flex-col justify-center gap-1.5 py-3 px-2;
+}
+
+.app-sidebar:not([data-expanded="true"]) .doublemenu_bottom-menu .side-menu__icon,
+.app-sidebar[data-expanded="false"] .doublemenu_bottom-menu .side-menu__icon {
+  @apply w-5 h-5;
+}
+
+.app-sidebar:not([data-expanded="true"]) .doublemenu_bottom-menu .side-menu__label,
+.app-sidebar[data-expanded="false"] .doublemenu_bottom-menu .side-menu__label {
+  @apply text-sm text-center;
+}
+
+/* Profile Avatar special styling */
+.doublemenu_bottom-menu .side-menu__item.p-2 {
+  @apply p-2;
+}
+
+/* Category Header Styles */
+.slide__category {
+  @apply mt-4 first:mt-0;
+}
+
+.category-name {
+  @apply block px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400;
+}
+
+/* Scrollbar styles for sidebar - Thin and subtle */
+.main-sidebar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.3) transparent;
+}
+
+.main-sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.main-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.main-sidebar::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.3);
+  border-radius: 2px;
+}
+
+.main-sidebar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(156, 163, 175, 0.5);
+}
+
+.dark .main-sidebar {
+  scrollbar-color: rgba(75, 85, 99, 0.3) transparent;
+}
+
+.dark .main-sidebar::-webkit-scrollbar-thumb {
+  background-color: rgba(75, 85, 99, 0.3);
+}
+
+.dark .main-sidebar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(75, 85, 99, 0.5);
+}
+
+/* Main content area scrollbar - thin and subtle */
+.admin-main-content {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.3) transparent;
+}
+
+.admin-main-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.admin-main-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.admin-main-content::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.3);
+  border-radius: 3px;
+}
+
+.admin-main-content::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(156, 163, 175, 0.5);
+}
+
+.dark .admin-main-content {
+  scrollbar-color: rgba(75, 85, 99, 0.3) transparent;
+}
+
+.dark .admin-main-content::-webkit-scrollbar-thumb {
+  background-color: rgba(75, 85, 99, 0.3);
+}
+
+.dark .admin-main-content::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(75, 85, 99, 0.5);
+}
+
+/* ========================================
+   Responsive Utilities for Admin Panel
+   ======================================== */
+
+/* Add xxs breakpoint for admin */
+@theme {
+  --breakpoint-xxs: 368px;
+}
+
+/* Responsive Typography for Admin */
+@layer utilities {
+  .admin-text-responsive {
+    @apply text-xs sm:text-sm md:text-base;
+  }
+
+  .admin-title-responsive {
+    @apply text-base sm:text-lg md:text-xl lg:text-2xl;
+  }
+
+  .admin-label-responsive {
+    @apply text-xs sm:text-sm;
+  }
+}
+
+/* Responsive Spacing for Admin */
+@layer utilities {
+  .admin-container-padding {
+    @apply px-2 sm:px-3 md:px-4 lg:px-6;
+  }
+
+  .admin-section-spacing {
+    @apply py-3 sm:py-4 md:py-6 lg:py-8;
+  }
+
+  .admin-gap-responsive {
+    @apply gap-2 sm:gap-3 md:gap-4;
+  }
+}
+
+/* Responsive Tables for Admin */
+@layer utilities {
+  .admin-table-responsive {
+    @apply overflow-x-auto;
+  }
+
+  .admin-table-responsive table {
+    @apply min-w-[640px];
+  }
+
+  /* Mobile table cells */
+  .admin-table-cell-mobile {
+    @apply px-2 py-2 sm:px-3 sm:py-2.5 md:px-4 md:py-3;
+  }
+}
+
+/* Responsive Forms for Admin */
+@layer utilities {
+  .admin-form-responsive {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4;
+  }
+
+  .admin-input-responsive {
+    @apply text-sm sm:text-base px-2 sm:px-3 py-1.5 sm:py-2;
+  }
+
+  .admin-button-responsive {
+    @apply text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2;
+  }
+}
+
+/* Responsive Sidebar for Admin */
+@layer utilities {
+
+  /* Collapsed sidebar on mobile */
+  .admin-sidebar-mobile {
+    @apply w-16 lg:w-64;
+  }
+
+  /* Hide sidebar text on mobile */
+  .admin-sidebar-text {
+    @apply hidden lg:block;
+  }
+
+  /* Show only icon on mobile */
+  .admin-sidebar-icon-only {
+    @apply flex flex-col items-center lg:flex-row lg:items-start;
+  }
+}
+
+/* Responsive Cards for Admin */
+@layer utilities {
+  .admin-card-responsive {
+    @apply rounded-lg p-3 sm:p-4 md:p-5 lg:p-6;
+  }
+
+  .admin-card-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4;
+  }
+}
+
+/* Mobile Menu for Admin */
+@layer utilities {
+  .admin-mobile-menu {
+    @apply fixed inset-0 z-50 bg-gray-900/50 lg:hidden;
+  }
+
+  .admin-mobile-menu-panel {
+    @apply fixed right-0 top-0 h-full w-64 bg-white dark:bg-gray-900 shadow-xl;
+  }
+}
+
+/* Responsive Stats/Metrics */
+@layer utilities {
+  .admin-stat-card {
+    @apply flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3;
+  }
+
+  .admin-stat-value {
+    @apply text-xl sm:text-2xl md:text-3xl font-bold;
+  }
+
+  .admin-stat-label {
+    @apply text-xs sm:text-sm text-gray-600 dark:text-gray-400;
+  }
+}
+
+/* Touch-friendly for Admin Mobile */
+@layer utilities {
+  .admin-touch-target {
+    @apply min-h-[44px] min-w-[44px] flex items-center justify-center;
+  }
+
+  .admin-tap-area {
+    @apply p-2 sm:p-1.5;
+  }
+}

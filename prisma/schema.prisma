@@ -1,0 +1,807 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Role {
+  id             Int              @id @default(autoincrement())
+  name           String           @unique @db.VarChar(50)
+  created_at     DateTime?        @default(now()) @db.Timestamp(6)
+  description    String?          @db.VarChar(255)
+  updated_at     DateTime?        @default(now()) @db.Timestamp(6)
+  rolepermission RolePermission[]
+  userrole       UserRole[]
+}
+
+model Permission {
+  id             Int              @id @default(autoincrement())
+  name           String           @unique @db.VarChar(100)
+  description    String?          @db.VarChar(255)
+  created_at     DateTime?        @default(now()) @db.Timestamp(6)
+  rolepermission RolePermission[]
+}
+
+model RolePermission {
+  id            Int         @id @default(autoincrement())
+  role_id       Int?
+  permission_id Int?
+  permission    Permission? @relation(fields: [permission_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  role          Role?       @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([role_id, permission_id])
+}
+
+model User {
+  id                 Int                  @id @default(autoincrement())
+  name               String               @db.VarChar(100)
+  email              String?              @unique @db.VarChar(100)
+  created_at         DateTime?            @default(now()) @db.Timestamp(6)
+  is_active          Boolean?             @default(true)
+  password           String?              @db.VarChar(255)
+  phone              String?              @unique @db.VarChar(100)
+  updated_at         DateTime?            @default(now()) @db.Timestamp(6)
+  emailVerified      DateTime?
+  lastLogin          DateTime?
+  resetToken         String?
+  image_profile      String?              @db.VarChar(255)
+  bio                String?
+  blog               Blog[]
+  blogComments       BlogComment[]
+  blogLikes          BlogLike[]
+  MediaFile          MediaFile[]
+  notificationtarget NotificationTarget[]
+  passwordresettoken PasswordResetToken[]
+  recentactivity     RecentActivity[]
+  userprovider       UserProvider[]
+  userrole           UserRole[]
+  usersession        UserSession[]
+  verificationcode   VerificationCode[]
+}
+
+model UserRole {
+  id      Int   @id @default(autoincrement())
+  user_id Int?
+  role_id Int?
+  role    Role? @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  User    User? @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([user_id, role_id])
+}
+
+model UserSession {
+  id         Int       @id @default(autoincrement())
+  user_id    Int?
+  token      String?   @db.VarChar(500)
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+  expires_at DateTime? @db.Timestamp(6)
+  User       User?     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model PasswordResetToken {
+  id         Int       @id @default(autoincrement())
+  user_id    Int?
+  token      String?   @db.VarChar(255)
+  expires_at DateTime? @db.Timestamp(6)
+  User       User?     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model VerificationCode {
+  id         Int       @id @default(autoincrement())
+  user_id    Int?
+  code       String?   @db.VarChar(10)
+  expires_at DateTime? @db.Timestamp(6)
+  User       User?     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model UserProvider {
+  id          Int     @id @default(autoincrement())
+  user_id     Int?
+  provider    String? @db.VarChar(50)
+  provider_id String? @db.VarChar(100)
+  User        User?   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model LoginAttempt {
+  id            Int       @id @default(autoincrement())
+  ip_address    String    @db.VarChar(45)
+  user_agent    String?   @db.VarChar(500)
+  email         String?   @db.VarChar(100)
+  phone         String?   @db.VarChar(20)
+  attempt_type  String    @db.VarChar(50)
+  success       Boolean   @default(false)
+  blocked       Boolean   @default(false)
+  blocked_until DateTime?
+  created_at    DateTime  @default(now()) @db.Timestamp(6)
+
+  @@index([ip_address, created_at])
+  @@index([email, created_at])
+  @@index([phone, created_at])
+  @@index([blocked, blocked_until])
+}
+
+model Blog {
+  id                Int               @id @default(autoincrement())
+  author_id         Int?
+  slug              String?           @unique @db.VarChar(255)
+  created_at        DateTime?         @default(now()) @db.Timestamp(6)
+  updated_at        DateTime?         @default(now()) @db.Timestamp(6)
+  is_active         Boolean?          @default(true)
+  image             String            @db.VarChar(500)
+  published_at      DateTime?
+  status            BlogStatus        @default(DRAFT)
+  view_count        Int               @default(0)
+  sliderRequested   Boolean           @default(false)
+  sliderRequestedAt DateTime?
+  sliderTitle       String?           @db.VarChar(255)
+  is_breaking       Boolean?          @default(false)
+  is_featured       Boolean?          @default(false)
+  reading_time      Int?
+  code              String?           @unique @db.VarChar(50)
+  short_link        String?           @unique @db.VarChar(100)
+  source_url        String?           @db.VarChar(500)
+  User              User?             @relation(fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  comments          BlogComment[]
+  likes             BlogLike[]
+  blogtagmap        BlogTagMap[]
+  translations      BlogTranslation[]
+  sliderItems       SliderItem[]
+  unifiedRssLogs    UnifiedRSSLog[]   @relation("UnifiedRSSLogToBlog")
+  blogcategory      BlogCategory[]    @relation("BlogCategoryToBlog")
+
+  @@index([status])
+  @@index([published_at])
+  @@index([is_featured])
+  @@index([is_breaking])
+  @@index([is_active])
+  @@index([created_at])
+  @@index([author_id])
+  @@index([view_count])
+  @@index([status, is_active, published_at])
+  @@index([is_featured, is_active, published_at])
+}
+
+model BlogTranslation {
+  id      Int     @id @default(autoincrement())
+  blog_id Int
+  lang    Lang
+  title   String  @db.VarChar(255)
+  content String?
+  slug    String  @db.VarChar(255)
+  seo_id  Int?    @unique
+  excerpt String? @db.VarChar(500)
+  blog    Blog    @relation(fields: [blog_id], references: [id], onDelete: Cascade)
+  seo     SEO?    @relation(fields: [seo_id], references: [id], onDelete: Cascade)
+
+  @@unique([blog_id, lang])
+  @@index([slug])
+  @@index([lang])
+  @@index([blog_id, lang])
+  @@index([title])
+}
+
+model BlogCategory {
+  id           Int                       @id @default(autoincrement())
+  parent_id    Int?
+  created_at   DateTime?                 @default(now()) @db.Timestamp(6)
+  icon         String?                   @db.VarChar(100)
+  is_active    Boolean?                  @default(true)
+  order        Int?                      @default(0)
+  updated_at   DateTime?                 @default(now()) @db.Timestamp(6)
+  parent       BlogCategory?             @relation("CategoryParent", fields: [parent_id], references: [id])
+  children     BlogCategory[]            @relation("CategoryParent")
+  translations BlogCategoryTranslation[]
+  blog         Blog[]                    @relation("BlogCategoryToBlog")
+  rss_sources  RSSSource[]
+
+  @@index([parent_id])
+  @@index([is_active])
+}
+
+model BlogCategoryTranslation {
+  id              Int          @id @default(autoincrement())
+  blogCategory_id Int
+  lang            Lang
+  name            String       @db.VarChar(100)
+  slug            String       @db.VarChar(255)
+  seo_id          Int?         @unique
+  description     String?
+  blogCategory    BlogCategory @relation(fields: [blogCategory_id], references: [id], onDelete: Cascade)
+  seo             SEO?         @relation(fields: [seo_id], references: [id], onDelete: Cascade)
+
+  @@unique([blogCategory_id, lang])
+  @@index([slug])
+}
+
+model BlogTag {
+  id                 Int                  @id @default(autoincrement())
+  created_at         DateTime?            @default(now()) @db.Timestamp(6)
+  blogtagmap         BlogTagMap[]
+  blogtagTranslation BlogTagTranslation[]
+}
+
+model BlogTagTranslation {
+  id         Int     @id @default(autoincrement())
+  blogtag_id Int
+  lang       Lang
+  name       String? @db.VarChar(100)
+  slug       String? @db.VarChar(255)
+  blogtag    BlogTag @relation(fields: [blogtag_id], references: [id], onDelete: Cascade)
+
+  @@unique([blogtag_id, lang])
+  @@index([slug])
+}
+
+model BlogTagMap {
+  id      Int      @id @default(autoincrement())
+  blog_id Int?
+  tag_id  Int?
+  blog    Blog?    @relation(fields: [blog_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tag     BlogTag? @relation(fields: [tag_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([blog_id, tag_id])
+}
+
+model BlogComment {
+  id         Int           @id @default(autoincrement())
+  content    String
+  user_id    Int?
+  blog_id    Int
+  status     CommentStatus @default(PENDING)
+  created_at DateTime      @default(now()) @db.Timestamp(6)
+  parent_id  Int?
+  updated_at DateTime?     @default(now()) @db.Timestamp(6)
+  email      String?       @db.VarChar(255)
+  ip_address String?       @db.VarChar(45)
+  name       String?       @db.VarChar(100)
+  blog       Blog          @relation(fields: [blog_id], references: [id], onDelete: Cascade)
+  parent     BlogComment?  @relation("CommentReplies", fields: [parent_id], references: [id], onDelete: Cascade)
+  replies    BlogComment[] @relation("CommentReplies")
+  user       User?         @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([blog_id])
+  @@index([status])
+  @@index([parent_id])
+}
+
+model BlogLike {
+  id      Int  @id @default(autoincrement())
+  user_id Int
+  blog_id Int
+  blog    Blog @relation(fields: [blog_id], references: [id], onDelete: Cascade)
+  user    User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, blog_id])
+  @@index([blog_id])
+}
+
+model SliderConfig {
+  id                  Int       @id @default(autoincrement())
+  maxSlots            Int       @default(5)
+  backfillWindowHours Int       @default(48)
+  created_at          DateTime? @default(now()) @db.Timestamp(6)
+  updated_at          DateTime? @default(now()) @db.Timestamp(6)
+}
+
+model SliderItem {
+  id       Int      @id @default(autoincrement())
+  blogId   Int
+  startAt  DateTime @default(now())
+  endAt    DateTime
+  ttlHours Int      @default(24)
+  priority Int      @default(0)
+  pinned   Boolean  @default(false)
+  status   String   @default("ACTIVE")
+  blog     Blog     @relation(fields: [blogId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([startAt, endAt])
+}
+
+model SEO {
+  id                     Int                      @id @default(autoincrement())
+  meta_title             String?                  @db.VarChar(255)
+  meta_description       String?
+  meta_keywords          String?                  @db.VarChar(500)
+  canonical_url          String?                  @db.VarChar(500)
+  robots                 String?                  @default("index, follow") @db.VarChar(50)
+  og_title               String?                  @db.VarChar(255)
+  og_description         String?
+  og_image               String?                  @db.VarChar(500)
+  twitter_title          String?                  @db.VarChar(255)
+  twitter_description    String?
+  twitter_image          String?                  @db.VarChar(500)
+  structured_data        String?
+  locale                 String?                  @default("fa_IR") @db.VarChar(10)
+  created_at             DateTime                 @default(now()) @db.Timestamp(6)
+  updated_at             DateTime                 @default(now()) @db.Timestamp(6)
+  alternate_languages    String?
+  article_author         String?                  @db.VarChar(100)
+  article_modified_time  DateTime?
+  article_published_time DateTime?
+  article_section        String?                  @db.VarChar(100)
+  breadcrumb_json        String?
+  og_site_name           String?                  @db.VarChar(100)
+  og_type                String?                  @default("article") @db.VarChar(50)
+  og_url                 String?                  @db.VarChar(500)
+  twitter_card           String?                  @default("summary_large_image") @db.VarChar(50)
+  twitter_creator        String?                  @db.VarChar(100)
+  twitter_site           String?                  @db.VarChar(100)
+  blogCatTranslation     BlogCategoryTranslation?
+  blogTranslation        BlogTranslation?
+  GeneralPageTranslation GeneralPageTranslation?
+  MenuPageTranslation    PageTranslation?
+
+  @@index([canonical_url])
+}
+
+model Menu {
+  menuid              Int                   @id @default(autoincrement())
+  menukey             String                @unique @db.VarChar(100)
+  parentid            Int?
+  url                 String?               @db.VarChar(500)
+  icon                String?               @db.VarChar(100)
+  created_at          DateTime?             @default(now()) @db.Timestamp(6)
+  is_active           Boolean?              @default(true)
+  order               Int?                  @default(0)
+  target              String?               @default("_self") @db.VarChar(20)
+  updated_at          DateTime?             @default(now()) @db.Timestamp(6)
+  menu                Menu?                 @relation("menusTomenus", fields: [parentid], references: [menuid], onDelete: Cascade, onUpdate: NoAction)
+  other_menus         Menu[]                @relation("menusTomenus")
+  translations        MenuTranslation[]
+  rolemenupermissions RoleMenuPermissions[]
+
+  @@index([parentid])
+  @@index([is_active])
+}
+
+model MenuTranslation {
+  id     Int    @id @default(autoincrement())
+  menuid Int
+  lang   Lang   @default(FA)
+  title  String @db.VarChar(255)
+  menu   Menu   @relation(fields: [menuid], references: [menuid], onDelete: Cascade)
+
+  @@unique([menuid, lang])
+}
+
+model RoleMenuPermissions {
+  permissionid Int     @id @default(autoincrement())
+  rolename     String  @db.VarChar(100)
+  menukey      String  @db.VarChar(100)
+  canview      Boolean
+  canedit      Boolean
+  candelete    Boolean
+  menu         Menu    @relation(fields: [menukey], references: [menukey], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([rolename, menukey])
+}
+
+model MenuPage {
+  id           Int               @id @default(autoincrement())
+  slug         String            @unique @db.VarChar(255)
+  created_at   DateTime          @default(now()) @db.Timestamp(6)
+  updated_at   DateTime          @default(now()) @db.Timestamp(6)
+  is_active    Boolean?          @default(true)
+  translations PageTranslation[]
+
+  @@index([slug])
+  @@index([is_active])
+}
+
+model PageTranslation {
+  id      Int      @id @default(autoincrement())
+  page_id Int
+  lang    Lang
+  title   String   @db.VarChar(255)
+  content String?
+  seo_id  Int?     @unique
+  page    MenuPage @relation(fields: [page_id], references: [id], onDelete: Cascade)
+  seo     SEO?     @relation(fields: [seo_id], references: [id])
+
+  @@unique([page_id, lang])
+}
+
+model GeneralPage {
+  id           Int                      @id @default(autoincrement())
+  key          String                   @unique @db.VarChar(50)
+  is_active    Boolean                  @default(true)
+  created_at   DateTime                 @default(now()) @db.Timestamp(6)
+  updated_at   DateTime                 @default(now()) @db.Timestamp(6)
+  copyright    String?
+  translations GeneralPageTranslation[]
+}
+
+model GeneralPageTranslation {
+  id             Int         @id @default(autoincrement())
+  generalPage_id Int
+  lang           Lang
+  title          String      @db.VarChar(255)
+  content        String?
+  slug           String      @db.VarChar(255)
+  seo_id         Int?        @unique
+  generalPage    GeneralPage @relation(fields: [generalPage_id], references: [id], onDelete: Cascade)
+  seo            SEO?        @relation(fields: [seo_id], references: [id])
+
+  @@unique([generalPage_id, lang])
+}
+
+model Notification {
+  id                 Int                  @id @default(autoincrement())
+  title              String?              @db.VarChar(255)
+  message            String?
+  type               String?              @db.VarChar(50)
+  created_at         DateTime?            @default(now()) @db.Timestamp(6)
+  link               String?              @db.VarChar(500)
+  notificationtarget NotificationTarget[]
+}
+
+model NotificationTarget {
+  id              Int           @id @default(autoincrement())
+  notification_id Int?
+  user_id         Int?
+  is_read         Boolean?      @default(false)
+  read_at         DateTime?
+  notification    Notification? @relation(fields: [notification_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  User            User?         @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([user_id])
+  @@index([is_read])
+}
+
+model RecentActivity {
+  id          Int      @id @default(autoincrement())
+  user_id     Int
+  action      String   @db.VarChar(100)
+  description String?
+  action_type String   @db.VarChar(50)
+  entity      String   @db.VarChar(100)
+  entity_id   Int
+  created_at  DateTime @default(now()) @db.Timestamp(6)
+  ip_address  String?  @db.VarChar(45)
+  user_agent  String?  @db.VarChar(500)
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@index([entity, entity_id])
+  @@index([created_at])
+}
+
+model MediaFile {
+  id         Int      @id @default(autoincrement())
+  url        String   @db.VarChar(500)
+  name       String   @db.VarChar(255)
+  type       String   @db.VarChar(50)
+  size       BigInt
+  folder     String   @db.VarChar(255)
+  user_id    Int?
+  created_at DateTime @default(now()) @db.Timestamp(6)
+  updated_at DateTime @default(now()) @db.Timestamp(6)
+  User       User?    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@index([url])
+  @@index([type])
+  @@index([folder])
+}
+
+model SiteSetting {
+  id         Int       @id @default(autoincrement())
+  key        String?   @unique @db.VarChar(100)
+  value      String?
+  group_name String?   @db.VarChar(100)
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+  updated_at DateTime? @default(now()) @db.Timestamp(6)
+
+  @@index([group_name])
+}
+
+model FooterMenu {
+  id                Int       @id @default(autoincrement())
+  title             String    @db.VarChar(255)
+  url               String?   @db.VarChar(500)
+  order             Int       @default(0)
+  group             String?   @db.VarChar(100)
+  is_active         Boolean   @default(true)
+  target            String?   @default("_self") @db.VarChar(20)
+  created_at        DateTime? @default(now()) @db.Timestamp(6)
+  updated_at        DateTime? @default(now()) @db.Timestamp(6)
+  custom_group_name String?   @db.VarChar(100)
+
+  @@index([group])
+  @@index([order])
+  @@index([is_active])
+}
+
+model SocialMediaLink {
+  id         Int      @id @default(autoincrement())
+  platform   String   @db.VarChar(50)
+  url        String   @db.VarChar(500)
+  icon       String?  @db.VarChar(50)
+  order      Int      @default(0)
+  is_active  Boolean  @default(true)
+  created_at DateTime @default(now()) @db.Timestamp(6)
+  updated_at DateTime @default(now()) @db.Timestamp(6)
+
+  @@index([platform])
+  @@index([is_active])
+  @@index([order])
+}
+
+model Ad {
+  id           Int        @id @default(autoincrement())
+  title        String?    @db.VarChar(255)
+  position     AdPosition
+  type         AdType     @default(IMAGE)
+  image_url    String?    @db.VarChar(500)
+  html_content String?
+  script_code  String?
+  link_url     String?    @db.VarChar(500)
+  target       String?    @default("_blank") @db.VarChar(20)
+  width        Int?
+  height       Int?
+  is_active    Boolean    @default(true)
+  start_date   DateTime?
+  end_date     DateTime?
+  click_count  Int        @default(0)
+  view_count   Int        @default(0)
+  priority     Int        @default(0)
+  created_at   DateTime   @default(now()) @db.Timestamp(6)
+  updated_at   DateTime   @default(now()) @db.Timestamp(6)
+
+  @@index([position])
+  @@index([is_active])
+  @@index([start_date, end_date])
+  @@index([priority])
+}
+
+model Translation {
+  id    Int    @id @default(autoincrement())
+  key   String @db.VarChar(255)
+  lang  Lang
+  value String
+
+  @@unique([key, lang])
+  @@index([key])
+}
+
+model UnifiedRSSSettings {
+  id                        Int      @id @default(autoincrement())
+  is_active                 Boolean  @default(false)
+  site_url                  String?  @db.VarChar(500)
+  telegram_enabled          Boolean  @default(false)
+  telegram_auto_start       Boolean  @default(false)
+  telegram_bot_token        String?  @db.VarChar(255)
+  telegram_channel_id       String?  @db.VarChar(100)
+  telegram_language         String   @default("fa") @db.VarChar(5)
+  telegram_content_length   String   @default("short") @db.VarChar(20)
+  telegram_tone             String   @default("reporter") @db.VarChar(50)
+  telegram_enable_video     Boolean  @default(false)
+  telegram_enable_watermark Boolean  @default(true)
+  telegram_rss_feeds        String?
+  telegram_prompt           String?
+  website_enabled           Boolean  @default(false)
+  website_auto_start        Boolean  @default(false)
+  website_language          String   @default("fa") @db.VarChar(5)
+  website_content_length    String   @default("medium") @db.VarChar(20)
+  website_tone              String   @default("reporter_analytical") @db.VarChar(50)
+  website_enable_video      Boolean  @default(false)
+  website_enable_watermark  Boolean  @default(true)
+  website_enhance_content   Boolean  @default(true)
+  website_force_seo         Boolean  @default(true)
+  website_rss_feeds         String?
+  website_prompt_rewrite    String?
+  website_prompt_analysis   String?
+  combined_prompt           String?
+  enable_combined_processing Boolean  @default(true)
+  use_separate_website_rss  Boolean  @default(false)
+  watermark_logo_path       String?  @db.VarChar(500)
+  send_interval             Int      @default(30)
+  check_interval            Int      @default(30) // Minutes
+  publish_interval          Int      @default(30) // Seconds
+  last_check_at             DateTime?
+  status_message            String?  @db.VarChar(255)
+  rss_date_filter           String   @default("today") @db.VarChar(20)
+  news_link_source          String   @default("rss") @db.VarChar(20)
+  use_short_link            Boolean  @default(true)
+  created_at                DateTime @default(now()) @db.Timestamp(6)
+  updated_at                DateTime @default(now()) @db.Timestamp(6)
+
+  @@index([telegram_enabled])
+  @@index([website_enabled])
+  @@index([telegram_auto_start])
+  @@index([website_auto_start])
+}
+
+model UnifiedRSSLog {
+  id                  Int       @id @default(autoincrement())
+  title               String    @db.VarChar(500)
+  rss_source_url      String?   @db.VarChar(500)
+  original_url        String?   @db.VarChar(500)
+  category_id         Int?
+  target              String    @db.VarChar(20)
+  telegram_sent       Boolean   @default(false)
+  telegram_message_id Int?
+  telegram_status     String?   @db.VarChar(50)
+  telegram_error      String?
+  telegram_content    String?
+  telegram_tokens_in  Int?
+  telegram_tokens_out Int?
+  telegram_cost       Float?
+  website_sent        Boolean   @default(false)
+  website_blog_id     Int?
+  website_status      String?   @db.VarChar(50)
+  website_error       String?
+  website_content     String?
+  website_tokens_in   Int?
+  website_tokens_out  Int?
+  website_cost        Float?
+  website_slug        String?   @db.VarChar(500)
+  extracted_content   String?
+  extracted_at        DateTime?
+  created_at          DateTime  @default(now()) @db.Timestamp(6)
+  processed_at        DateTime?
+  blog                Blog?     @relation("UnifiedRSSLogToBlog", fields: [website_blog_id], references: [id])
+
+  @@index([target])
+  @@index([telegram_sent])
+  @@index([website_sent])
+  @@index([telegram_status])
+  @@index([website_status])
+  @@index([created_at])
+  @@index([category_id])
+  @@index([rss_source_url])
+  @@index([title])
+}
+
+model TokenUsage {
+  id           Int      @id @default(autoincrement())
+  provider     String   @db.VarChar(50)
+  model        String   @db.VarChar(100)
+  inputTokens  Int
+  outputTokens Int
+  totalTokens  Int
+  cost         Float?
+  operation    String   @db.VarChar(50)
+  newsId       Int?
+  createdAt    DateTime @default(now()) @db.Timestamp(6)
+
+  @@index([provider, createdAt])
+  @@index([operation])
+  @@index([createdAt])
+  @@index([provider, operation])
+}
+
+model RSSSource {
+  id          Int          @id @default(autoincrement())
+  category_id Int
+  rss_url     String       @db.VarChar(500)
+  target      String       @db.VarChar(20)
+  is_active   Boolean      @default(true)
+  priority    Int          @default(0)
+  created_at  DateTime     @default(now()) @db.Timestamp(6)
+  updated_at  DateTime     @default(now()) @db.Timestamp(6)
+  category    BlogCategory @relation(fields: [category_id], references: [id], onDelete: Cascade)
+
+  @@index([category_id])
+  @@index([target])
+  @@index([is_active])
+}
+
+model AIPrompt {
+  id          Int      @id @default(autoincrement())
+  key         String   @unique @db.VarChar(100)
+  target      String   @db.VarChar(20)
+  prompt_type String   @db.VarChar(50)
+  content     String
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now()) @db.Timestamp(6)
+  updated_at  DateTime @default(now()) @db.Timestamp(6)
+
+  @@index([key])
+  @@index([target])
+  @@index([prompt_type])
+}
+
+enum BlogStatus {
+  DRAFT
+  PENDING
+  PUBLISHED
+  ARCHIVED
+}
+
+enum CommentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum AdPosition {
+  HEADER_TOP
+  HEADER_MIDDLE
+  SIDEBAR_TOP
+  SIDEBAR_MIDDLE
+  SIDEBAR_BOTTOM
+  CONTENT_TOP
+  CONTENT_MIDDLE
+  CONTENT_BOTTOM
+  BANNER_BOTTOM
+  IN_ARTICLE
+  POPUP
+  STICKY
+  STICKY_BOTTOM_RIGHT
+  BANNER_TOP_HEADER_LEFT
+  BANNER_TOP_HEADER_RIGHT
+}
+
+enum AdType {
+  IMAGE
+  HTML
+  SCRIPT
+  GIF
+}
+
+enum Lang {
+  FA
+  EN
+}
+
+model CarPriceSetting {
+  id               Int       @id @default(autoincrement())
+  is_active        Boolean   @default(false)
+  
+  // Scheduling
+  schedule_type    String    @default("daily") // 'daily' or 'interval'
+  schedule_time    String    @default("12:00") @db.VarChar(5)
+  interval_hours   Int?      @default(24)
+  
+  last_run         DateTime?
+  telegram_enabled Boolean   @default(true)
+  website_enabled  Boolean   @default(true)
+  created_at       DateTime  @default(now()) @db.Timestamp(6)
+  updated_at       DateTime  @default(now()) @db.Timestamp(6)
+}
+
+model CarPriceSource {
+  id        Int      @id @default(autoincrement())
+  name      String
+  url       String
+  is_active        Boolean    @default(true)
+  telegram_enabled Boolean    @default(true)
+  order            Int        @default(0)
+  schedule_time    String?    @db.VarChar(5) // e.g. "10:30"
+  telegram_image   String?    @db.VarChar(500) // Path to image for Telegram caption
+  prices    CarPrice[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  
+  // Retry Logic
+  last_run_at       DateTime?
+  last_success_at   DateTime?
+  last_status       String?   @default("pending") // pending, success, error
+  consecutive_errors Int      @default(0)
+}
+
+model CarPrice {
+  id          Int      @id @default(autoincrement())
+  source_id   Int
+  source      CarPriceSource @relation(fields: [source_id], references: [id], onDelete: Cascade)
+  
+  brand       String
+  model       String
+  trim        String?
+  year        String
+  price       String
+  type        String   // market, factory
+  change      String?
+  time        String?  // scraped time text
+  
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@index([source_id])
+}

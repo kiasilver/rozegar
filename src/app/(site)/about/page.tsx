@@ -1,0 +1,104 @@
+﻿import { Metadata } from 'next';
+import { prisma } from '@/lib/core/prisma';
+import { notFound } from 'next/navigation';
+import AboutUsRenderer from '@/components/Site/pages/AboutUsRenderer';
+
+// Static page with ISR - revalidate every hour
+export const revalidate = 3600;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const page = await prisma.generalPage.findUnique({
+    where: { key: 'about' },
+    include: {
+      translations: {
+        where: { lang: 'FA' },
+        include: { seo: true },
+      },
+    },
+  });
+
+  const translation = page?.translations[0];
+  const seo = translation?.seo;
+
+  return {
+    title: seo?.meta_title || translation?.title || 'درباره ما | روزمرگی',
+    description: seo?.meta_description || 'درباره پایگاه خبری روزمرگی',
+    alternates: {
+      canonical: '/about',
+    },
+    openGraph: {
+      title: seo?.og_title || translation?.title || 'درباره ما | روزمرگی',
+      description: seo?.og_description || 'درباره پایگاه خبری روزمرگی',
+      images: seo?.og_image ? [seo.og_image] : [],
+      type: (seo?.og_type as 'website' | 'article' | 'profile' | undefined) || 'website',
+    },
+  };
+}
+
+export default async function AboutPage() {
+  const page = await prisma.generalPage.findUnique({
+    where: { key: 'about' },
+    include: {
+      translations: {
+        where: { lang: 'FA' },
+      },
+    },
+  });
+
+  if (!page || !page.is_active) {
+    // اگر صفحه وجود ندارد، یک صفحه پیش‌فرض نمایش بده
+    return (
+      <div className="w-full bg-gray-50 min-h-screen">
+        <div className="max-w-4xl mx-auto px-2 sm:px-3 md:px-4 lg:px-6 xl:px-8 py-6 sm:py-8 md:py-10 lg:py-12">
+          <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 md:p-8">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4 sm:mb-6">
+              درباره ما
+            </h1>
+            <div className="prose prose-sm sm:prose-base md:prose-lg max-w-none text-gray-700">
+              <p className="mb-3 sm:mb-4 text-sm sm:text-base">
+                صفحه درباره ما در حال آماده‌سازی است. لطفاً بعداً مراجعه کنید.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const translation = page.translations[0];
+
+  // Try to parse content as JSON (template data)
+  let templateData = null;
+  if (translation?.content) {
+    try {
+      templateData = JSON.parse(translation.content);
+    } catch {
+      // Content is not JSON, use old format
+    }
+  }
+
+  // If template data exists, use template renderer
+  if (templateData) {
+    return <AboutUsRenderer data={templateData} />;
+  }
+
+  // Otherwise, use old format
+  return (
+    <div className="w-full bg-gray-50 min-h-screen">
+      <div className="max-w-4xl mx-auto px-2 sm:px-3 md:px-4 lg:px-6 xl:px-8 py-6 sm:py-8 md:py-10 lg:py-12">
+        <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 md:p-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4 sm:mb-6">
+            {translation?.title || 'درباره ما'}
+          </h1>
+          <div
+            className="prose prose-sm sm:prose-base md:prose-lg max-w-none text-gray-700"
+            dangerouslySetInnerHTML={{
+              __html: translation?.content || '<p>محتوای صفحه در حال آماده‌سازی است.</p>',
+            }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
