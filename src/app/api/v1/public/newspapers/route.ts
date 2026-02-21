@@ -326,22 +326,29 @@ function getPersianName(englishName: string): string {
 }
 
 /**
- * ???? URL pdfviewer.php ???? ???????
+ * ساخت URL pdfviewer.php برای روزنامه
  */
 function buildPDFViewerUrl(newspaperName: string, imageUrl?: string): string | null {
-  // ??????? ????? ?? imageUrl
+  // تمیز کردن نام روزنامه از کاراکترهای اضافی
+  const cleanName = newspaperName.split('?')[0].split('&')[0].trim();
+  
+  if (!cleanName || cleanName.length === 0) {
+    return null;
+  }
+
+  // استخراج تاریخ از imageUrl
   if (imageUrl && imageUrl.includes('/Archive/')) {
-    // ????: https://www.pishkhan.com/Archive/1404/09/14040916/DonyayeEghtesad_s.jpg
-    const dateMatch = imageUrl.match(/\/Archive\/\d+\/\d+\/(\d+)\//i);
+    // مثال: https://www.pishkhan.com/Archive/1404/09/14040916/DonyayeEghtesad_s.jpg
+    const dateMatch = imageUrl.match(/\/Archive\/\d+\/\d+\/(\d{8})\//i);
     if (dateMatch) {
       const date = dateMatch[1]; // 14040916
-      return `https://www.pishkhan.com/pdfviewer.php?paper=${newspaperName}&date=${date}`;
+      return `https://www.pishkhan.com/pdfviewer.php?paper=${encodeURIComponent(cleanName)}&date=${date}`;
     }
   }
 
-  // ??? ????????? ?? imageUrl ??????? ????? ?? ????? ????? ??????? ????
+  // اگر تاریخ از imageUrl استخراج نشد، از تاریخ امروز استفاده کن
   const todayDate = getTodayPersianDate();
-  return `https://www.pishkhan.com/pdfviewer.php?paper=${newspaperName}&date=${todayDate}`;
+  return `https://www.pishkhan.com/pdfviewer.php?paper=${encodeURIComponent(cleanName)}&date=${todayDate}`;
 }
 
 /**
@@ -350,7 +357,7 @@ function buildPDFViewerUrl(newspaperName: string, imageUrl?: string): string | n
  */
 async function extractPDFFromViewer(viewerUrl: string, retryCount: number = 0): Promise<string | null> {
   try {
-    console.log(`?? ?? ??? ?????? ???? pdfviewer (???? ${retryCount + 1}): ${viewerUrl}`);
+    console.log(`🔍 در حال بررسی pdfviewer (تلاش ${retryCount + 1}): ${viewerUrl}`);
 
     // ??????? ????????? ?? URL
     const urlObj = new URL(viewerUrl);
@@ -359,7 +366,7 @@ async function extractPDFFromViewer(viewerUrl: string, retryCount: number = 0): 
 
     // ??? ????? ??? ???? ????? ?????? ?? PDF ????? ??? (7 ????? ??? delay ?? JavaScript)
     if (retryCount === 0) {
-      console.log(`? ????? ????? ??? PDF (7 ?????)...`);
+      console.log(`⏳ صبر برای بارگذاری PDF (7 ثانیه)...`);
       await new Promise(resolve => setTimeout(resolve, 7000));
     }
 
@@ -382,14 +389,14 @@ async function extractPDFFromViewer(viewerUrl: string, retryCount: number = 0): 
     // ????? URL ????? - ??? redirect ??? ?? PDF? ?? ?? ??????? ??
     const finalUrl = response.url;
     if (finalUrl !== viewerUrl && finalUrl.includes('.pdf') && finalUrl.includes('/Archive/')) {
-      console.log(`? Redirect ?? PDF ???? ??: ${finalUrl}`);
+      console.log(`↪️ Redirect به PDF پیدا شد: ${finalUrl}`);
       return finalUrl;
     }
 
     // ????? Content-Type - ??? PDF ???? ?? URL ??????? ??
     const contentType = response.headers.get('content-type');
     if (contentType && contentType.includes('pdf')) {
-      console.log(`? ???? PDF ???: ${finalUrl}`);
+      console.log(`✅ پیدا کردن PDF مستقیم: ${finalUrl}`);
       return finalUrl;
     }
 
@@ -430,27 +437,27 @@ async function extractPDFFromViewer(viewerUrl: string, retryCount: number = 0): 
         );
 
         const ajaxText = await ajaxResponse.text();
-        console.log(`?? ???? AJAX (paper=${paperId}, id=${id}): ${ajaxText.substring(0, 200)}`);
+        console.log(`📡 پاسخ AJAX (paper=${paperId}, id=${id}): ${ajaxText.substring(0, 200)}`);
 
-        // ????? ????? ??? ???? ?? URL PDF ???
+        // بررسی اینکه آیا پاسخ شامل URL PDF است
         if (ajaxText && ajaxText.trim() !== 'null' && ajaxText.trim() !== '') {
-          // ??? ???? ?? URL ???? ???
+          // اگر پاسخ یک URL کامل است
           if (ajaxText.includes('http') && ajaxText.includes('.pdf')) {
             const pdfUrl = ajaxText.trim();
-            console.log(`? ???? PDF ?? AJAX ???? ??: ${pdfUrl}`);
+            console.log(`✅ پیدا کردن PDF از پاسخ AJAX: ${pdfUrl}`);
             return pdfUrl;
           }
-          // ??? ???? ?? ???? ???? ???
+          // اگر پاسخ یک مسیر نسبی است
           if (ajaxText.includes('/Archive/') && ajaxText.includes('.pdf')) {
             const pdfUrl = ajaxText.trim().startsWith('/')
               ? `https://www.pishkhan.com${ajaxText.trim()}`
               : `https://www.pishkhan.com/${ajaxText.trim()}`;
-            console.log(`? ???? PDF ?? AJAX ???? ??: ${pdfUrl}`);
+            console.log(`✅ پیدا کردن PDF از پاسخ AJAX: ${pdfUrl}`);
             return pdfUrl;
           }
         }
       } catch (ajaxError: any) {
-        console.log(`?? ??? ?? ???????? AJAX: ${ajaxError.message}`);
+        console.log(`⚠️ خطا در دریافت AJAX: ${ajaxError.message}`);
       }
     }
 
@@ -462,7 +469,7 @@ async function extractPDFFromViewer(viewerUrl: string, retryCount: number = 0): 
       if (!pdfUrl.startsWith('http')) {
         pdfUrl = `https://www.pishkhan.com${pdfUrl.startsWith('/') ? '' : '/'}${pdfUrl}`;
       }
-      console.log(`? ???? PDF ?? ????? JavaScript ???? ??: ${pdfUrl}`);
+      console.log(`✅ پیدا کردن PDF از کد JavaScript: ${pdfUrl}`);
       return pdfUrl;
     }
 
@@ -538,15 +545,15 @@ async function extractPDFFromViewer(viewerUrl: string, retryCount: number = 0): 
                   // ????? ????? ??? ??? ?? ?????? ??? ???? ????
                   const hasNumber = /\d{10,}/.test(pdfName);
                   if (hasNumber) {
-                    console.log(`? ???? PDF ?? ??? ???? ??: ${pdfUrl}`);
+                    console.log(`✅ پیدا کردن PDF از الگو: ${pdfUrl}`);
                     return pdfUrl;
                   } else {
                     // ??? ??? ?????? ??? ?? ???? ??? ????? ????
-                    console.log(`? ???? PDF ???? ?? (???? ???): ${pdfUrl}`);
+                    console.log(`✅ پیدا کردن PDF از الگو (با capture): ${pdfUrl}`);
                     return pdfUrl;
                   }
                 } else {
-                  console.log(`? ???? PDF ???? ??: ${pdfUrl}`);
+                  console.log(`✅ پیدا کردن PDF از الگو: ${pdfUrl}`);
                   return pdfUrl;
                 }
               }
@@ -569,7 +576,7 @@ async function extractPDFFromViewer(viewerUrl: string, retryCount: number = 0): 
             }
 
             if (pdfUrl.includes('.pdf') && pdfUrl.includes('/Archive/')) {
-              console.log(`? ???? PDF ???? ?? (?? match[0]): ${pdfUrl}`);
+              console.log(`✅ پیدا کردن PDF از match[0]: ${pdfUrl}`);
               return pdfUrl;
             }
           }
@@ -582,21 +589,21 @@ async function extractPDFFromViewer(viewerUrl: string, retryCount: number = 0): 
 
     // ??? ???? ??? ? ???? ???? ?????????? ?????? ???? ???? (??? ?? ??? ?????)
     if (retryCount < 2) {
-      console.log(`? ???? PDF ???? ???? ????? ${(retryCount + 1) * 5} ????? ? ???? ????...`);
+      console.log(`⏳ صبر ${(retryCount + 1) * 5} ثانیه و تلاش مجدد...`);
       await new Promise(resolve => setTimeout(resolve, (retryCount + 1) * 5000));
       return extractPDFFromViewer(viewerUrl, retryCount + 1);
     }
 
     // ??? ???? ??? ? ???? ???? ?????????? ?????? ???? ???? (??? ?? ??? ?????)
     if (retryCount < 2) {
-      console.log(`? ???? PDF ???? ???? ????? ${(retryCount + 1) * 5} ????? ? ???? ????...`);
+      console.log(`⏳ صبر ${(retryCount + 1) * 5} ثانیه و تلاش مجدد...`);
       await new Promise(resolve => setTimeout(resolve, (retryCount + 1) * 5000));
       return extractPDFFromViewer(viewerUrl, retryCount + 1);
     }
 
     // ??? ???? ???? ??? ?? ?? URL ??? pdfviewer ??????? ??
     // ???? ????? ????????? ???????? ?? pdfviewer ?????? ????
-    console.log(`?? ???? PDF ?????? ???? ???? ??????? ?? pdfviewer URL`);
+    console.log(`❌ پیدا کردن PDF ناموفق بود از pdfviewer URL`);
     return viewerUrl;
   } catch (error: any) {
     console.error(`? ??? ?? ??????? PDF ?? viewer: ${error.message}`);
@@ -615,9 +622,14 @@ async function downloadAndSavePDF(pdfViewerUrl: string, newspaperName: string, p
     const path = await import('path');
     const { slugifyPersian } = await import('@/lib/utils/slugify-fa');
 
+    // تمیز کردن نام روزنامه از کاراکترهای اضافی
+    // حذف ?date= و &date= و هر چیزی بعد از ?
+    let cleanName = newspaperName.split('?')[0].split('&')[0].trim();
+    cleanName = cleanName.replace(/[^a-zA-Z0-9_-]/g, ''); // فقط حروف، اعداد، خط تیره و آندرلاین
+    
     // نام فایل را با استفاده از Slug انگلیسی بسازیم
     // تا با mapping های صفحه اصلی (Newpaper) و آرشیو مطابقت دقیق داشته باشد
-    const safeName = newspaperName.substring(0, 50);
+    const safeName = cleanName.substring(0, 50);
     const today = new Date();
     const persianDate = new Intl.DateTimeFormat('fa-IR', {
       year: 'numeric',
@@ -638,13 +650,13 @@ async function downloadAndSavePDF(pdfViewerUrl: string, newspaperName: string, p
       return savedPath;
     } catch {
       // ???? ???? ?????? ????? ???????
-      console.log(`?? ?? ??? ?????? PDF ?? pdfviewer: ${pdfViewerUrl}`);
+      console.log(`🔍 در حال بررسی PDF از pdfviewer: ${pdfViewerUrl}`);
     }
 
     // ????? ????? ?????? ?? PDF ?? pdfviewer ????? ???
     // ??? JavaScript ?? ????? delay=7000 (7 ?????) ???
     // ??? ???? ???????? 10 ????? ????? ????????
-    console.log(`? ????? ????? ??? PDF (10 ?????)...`);
+    console.log(`⏳ صبر برای بارگذاری PDF (10 ثانیه)...`);
     await new Promise(resolve => setTimeout(resolve, 10000));
 
     // ??????? ???? ????? PDF ?? ???? pdfviewer (?? retry)
@@ -667,7 +679,7 @@ async function downloadAndSavePDF(pdfViewerUrl: string, newspaperName: string, p
       const retryPdfUrl = await extractPDFFromViewer(pdfViewerUrl, 1);
       if (retryPdfUrl && retryPdfUrl !== pdfViewerUrl && retryPdfUrl.includes('.pdf')) {
         finalPdfUrl = retryPdfUrl;
-        console.log(`? ???? PDF ?? ???? ???? ???? ??: ${finalPdfUrl}`);
+        console.log(`✅ پیدا کردن PDF از AJAX: ${finalPdfUrl}`);
       } else {
         // ??? ??? ?? ???? ???? ??? ??????? ???????? ?? pdfviewer ?? Accept header ?????? ????
         console.warn(`?? ?? ???? ???? ?? ???? PDF ???? ???? ??? ?????? ?????? ?? pdfviewer...`);
@@ -688,7 +700,7 @@ async function downloadAndSavePDF(pdfViewerUrl: string, newspaperName: string, p
           const testContentType = testResponse.headers.get('content-type');
           if (testContentType && testContentType.includes('pdf')) {
             finalPdfUrl = pdfViewerUrl;
-            console.log(`? pdfviewer ???????? PDF ???????????`);
+            console.log(`✅ pdfviewer PDF را پیدا کرد`);
           } else {
             console.warn(`?? pdfviewer PDF ???????????? (${testContentType})`);
             return null;
@@ -700,7 +712,7 @@ async function downloadAndSavePDF(pdfViewerUrl: string, newspaperName: string, p
       }
     }
 
-    console.log(`?? ?? ??? ?????? PDF ????? ??: ${finalPdfUrl}`);
+    console.log(`📄 در حال دانلود PDF از: ${finalPdfUrl}`);
 
     // ?????? PDF (?? retry)
     const response = await fetchWithRetry(
@@ -718,7 +730,7 @@ async function downloadAndSavePDF(pdfViewerUrl: string, newspaperName: string, p
     );
 
     if (!response.ok) {
-      console.warn(`?? ??????? PDF ?? ?????? ???: ${response.status}`);
+      console.warn(`⚠️ خطا در دریافت PDF با کد: ${response.status}`);
       return null;
     }
 
@@ -727,7 +739,7 @@ async function downloadAndSavePDF(pdfViewerUrl: string, newspaperName: string, p
     if (!contentType || !contentType.includes('pdf')) {
       // ??? PDF ????? ???? ??? HTML ???? (???? pdfviewer)
       // ?? ??? ???? ???? ?????? ???? ????
-      console.warn(`?? ???? PDF ????? ???: ${contentType}`);
+      console.warn(`⚠️ محتوای PDF معتبر نیست: ${contentType}`);
       return null;
     }
 
@@ -757,7 +769,12 @@ async function downloadAndSaveImage(imgUrl: string, newspaperName: string, dateS
     const fs = await import('fs/promises');
     const path = await import('path');
 
-    const safeName = newspaperName.substring(0, 50);
+    // تمیز کردن نام روزنامه از کاراکترهای اضافی
+    // حذف ?date= و &date= و هر چیزی بعد از ?
+    let cleanName = newspaperName.split('?')[0].split('&')[0].trim();
+    cleanName = cleanName.replace(/[^a-zA-Z0-9_-]/g, ''); // فقط حروف، اعداد، خط تیره و آندرلاین
+    
+    const safeName = cleanName.substring(0, 50);
     const filename = `${safeName}-${dateStr}.jpg`;
     const uploadDir = path.default.join(process.cwd(), 'public', 'uploads', 'newspapers');
     const filepath = path.default.join(uploadDir, filename);
@@ -792,23 +809,62 @@ function extractPDFLinksFromEconomicsPage(html: string): Map<string, string> {
   const pdfLinks = new Map<string, string>();
   const cleanHtml = html.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/gi, '$1');
 
-  // ???? ???? ??? ???????? PDF
-  // ????: <a href="https://www.pishkhan.com/pdfviewer.php?paper=Eskenas&date=14040916">
-  const linkRegex = /href=["']([^"']*pdfviewer\.php\?paper=([^&"']+)[^"']*)["']/gi;
+  // استخراج لینک‌های PDF از صفحه economics
+  // مثال: <a href="https://www.pishkhan.com/pdfviewer.php?paper=Eskenas&date=14040916">
+  // یا: <a href="pdfviewer.php?paper=Eskenas&date=14040916">
+  const linkRegex = /href=["']([^"']*pdfviewer\.php[^"']*)["']/gi;
   const linkMatches = [...cleanHtml.matchAll(linkRegex)];
 
   for (const match of linkMatches) {
-    if (match[1] && match[2]) {
+    if (match[1]) {
       let pdfUrl = match[1]
         .replace(/&amp;/g, '&')
         .replace(/&quot;/g, '"')
         .replace(/&#39;/g, "'")
         .trim();
 
-      const newspaperName = match[2];
-      // ??? ??? ????? ????? ???? ????
-      if (!pdfLinks.has(newspaperName)) {
-        pdfLinks.set(newspaperName, pdfUrl);
+      // اگر URL کامل نیست، اضافه کردن دامنه
+      if (!pdfUrl.startsWith('http')) {
+        if (pdfUrl.startsWith('/')) {
+          pdfUrl = `https://www.pishkhan.com${pdfUrl}`;
+        } else {
+          pdfUrl = `https://www.pishkhan.com/${pdfUrl}`;
+        }
+      }
+
+      // استخراج نام روزنامه و تاریخ از URL
+      try {
+        // تمیز کردن URL از کاراکترهای اضافی
+        // اگر URL شامل چندین ? باشد، فقط اولی را نگه دار
+        const questionMarkIndex = pdfUrl.indexOf('?');
+        if (questionMarkIndex !== -1) {
+          const baseUrl = pdfUrl.substring(0, questionMarkIndex + 1);
+          const queryString = pdfUrl.substring(questionMarkIndex + 1);
+          // حذف ? اضافی از query string
+          const cleanQuery = queryString.replace(/\?/g, '&');
+          pdfUrl = baseUrl + cleanQuery;
+        }
+
+        const urlObj = new URL(pdfUrl);
+        const paperParam = urlObj.searchParams.get('paper');
+        const dateParam = urlObj.searchParams.get('date');
+
+        if (paperParam) {
+          // تمیز کردن نام روزنامه از کاراکترهای اضافی
+          const cleanPaperName = paperParam.split('?')[0].split('&')[0].trim();
+          
+          // ساخت URL تمیز
+          const cleanUrl = `https://www.pishkhan.com/pdfviewer.php?paper=${cleanPaperName}${dateParam ? `&date=${dateParam}` : ''}`;
+          
+          // فقط اگر نام روزنامه معتبر است
+          if (cleanPaperName && cleanPaperName.length > 0 && !cleanPaperName.includes('date=')) {
+            if (!pdfLinks.has(cleanPaperName)) {
+              pdfLinks.set(cleanPaperName, cleanUrl);
+            }
+          }
+        }
+      } catch (e) {
+        console.warn(`⚠️ خطا در پردازش URL PDF: ${pdfUrl}`, e);
       }
     }
   }
@@ -903,7 +959,79 @@ async function extractEconomicNewspapers(html: string, sourceUrl?: string, force
           pdfViewerUrl = buildPDFViewerUrl(newspaperSlug, imgUrl) || undefined;
         }
 
+        // تمیز کردن URL از مشکلات احتمالی
+        if (pdfViewerUrl) {
+          // اگر URL شامل چندین ? باشد، فقط اولی را نگه دار
+          const questionMarkIndex = pdfViewerUrl.indexOf('?');
+          if (questionMarkIndex !== -1) {
+            const baseUrl = pdfViewerUrl.substring(0, questionMarkIndex + 1);
+            const queryString = pdfViewerUrl.substring(questionMarkIndex + 1);
+            // حذف ? اضافی از query string و تبدیل به &
+            const cleanQuery = queryString.replace(/\?/g, '&');
+            pdfViewerUrl = baseUrl + cleanQuery;
+          }
+
+          // بررسی و اصلاح نام روزنامه در URL
+          try {
+            const urlObj = new URL(pdfViewerUrl);
+            const paperParam = urlObj.searchParams.get('paper');
+            if (paperParam && (paperParam.includes('?date=') || paperParam.includes('&date='))) {
+              // اگر نام روزنامه شامل date parameter است، آن را تمیز کن
+              const cleanPaperName = paperParam.split('?')[0].split('&')[0].trim();
+              const dateParam = urlObj.searchParams.get('date');
+              pdfViewerUrl = `https://www.pishkhan.com/pdfviewer.php?paper=${encodeURIComponent(cleanPaperName)}${dateParam ? `&date=${dateParam}` : ''}`;
+            }
+          } catch (e) {
+            console.warn(`⚠️ خطا در تمیز کردن URL: ${pdfViewerUrl}`, e);
+          }
+        }
+
         let pdfUrlToReturn: string | undefined = undefined;
+
+        // تمیز کردن PDF viewer URL از کاراکترهای اضافی
+        if (pdfViewerUrl) {
+          // اگر URL شامل چندین ? باشد، فقط اولی را نگه دار
+          const questionMarkIndex = pdfViewerUrl.indexOf('?');
+          if (questionMarkIndex !== -1) {
+            const baseUrl = pdfViewerUrl.substring(0, questionMarkIndex + 1);
+            const queryString = pdfViewerUrl.substring(questionMarkIndex + 1);
+            // حذف ? اضافی از query string و تبدیل به &
+            const cleanQuery = queryString.replace(/\?/g, '&');
+            pdfViewerUrl = baseUrl + cleanQuery;
+          }
+        }
+
+        // استخراج تاریخ از PDF viewer URL یا image URL
+        let newspaperDate: string | null = null;
+        if (pdfViewerUrl) {
+          try {
+            const urlObj = new URL(pdfViewerUrl);
+            const dateParam = urlObj.searchParams.get('date');
+            if (dateParam && dateParam.length === 8) {
+              newspaperDate = dateParam; // فرمت: 14040916
+            }
+          } catch (e) {
+            console.warn(`⚠️ خطا در پردازش URL: ${pdfViewerUrl}`, e);
+          }
+        }
+        
+        // اگر تاریخ از URL استخراج نشد، از image URL استخراج کن
+        if (!newspaperDate && imgUrl && imgUrl.includes('/Archive/')) {
+          const dateMatch = imgUrl.match(/\/Archive\/\d+\/\d+\/(\d{8})\//i);
+          if (dateMatch) {
+            newspaperDate = dateMatch[1];
+          }
+        }
+
+        // دریافت تاریخ امروز به فرمت 8 رقمی (YYYYMMDD)
+        const todayDate8Digit = getTodayPersianDate();
+        
+        // فقط اگر تاریخ روزنامه با امروز مطابقت دارد، ادامه بده
+        if (!newspaperDate || newspaperDate !== todayDate8Digit) {
+          console.log(`⏭️ رد کردن روزنامه ${persianName} - تاریخ: ${newspaperDate || 'نامشخص'}, امروز: ${todayDate8Digit}`);
+          // اگر تاریخ امروز نیست، از اضافه کردن به لیست صرف نظر کن
+          continue;
+        }
 
         // منطق دانلود PDF (مشابه قبل)
         if (pdfViewerUrl) {
@@ -911,13 +1039,15 @@ async function extractEconomicNewspapers(html: string, sourceUrl?: string, force
           const path = await import('path');
           const { slugifyPersian } = await import('@/lib/utils/slugify-fa');
 
-          const today = new Date();
-          const persianDate = new Intl.DateTimeFormat('fa-IR', {
-            year: 'numeric', month: '2-digit', day: '2-digit', calendar: 'persian'
-          }).format(today);
-          const dateStr = persianDate.replace(/\//g, '-');
+          // تبدیل تاریخ 8 رقمی به فرمت YYYY-MM-DD برای نام فایل
+          const year = newspaperDate.substring(0, 4);
+          const month = newspaperDate.substring(4, 6);
+          const day = newspaperDate.substring(6, 8);
+          const dateStr = `${year}-${month}-${day}`;
 
-          const safeName = newspaperSlug.substring(0, 50);
+          // تمیز کردن نام روزنامه از کاراکترهای اضافی
+          const cleanNewspaperSlug = newspaperSlug.split('?')[0].split('&')[0].trim();
+          const safeName = cleanNewspaperSlug.substring(0, 50);
           const filename = `${safeName}-${dateStr}.pdf`;
           const uploadDir = path.default.join(process.cwd(), 'public', 'uploads', 'newspapers');
           const filepath = path.default.join(uploadDir, filename);
@@ -934,13 +1064,17 @@ async function extractEconomicNewspapers(html: string, sourceUrl?: string, force
 
           if (forceDownload) {
             if (!fileExists) {
-              console.log(`📥 دانلود PDF برای ${persianName}...`);
-              const savedPath = await downloadAndSavePDF(pdfViewerUrl, newspaperSlug, persianName);
+              // تمیز کردن نام روزنامه قبل از استفاده
+              const cleanNewspaperSlug = newspaperSlug.split('?')[0].split('&')[0].trim();
+              console.log(`📥 دانلود PDF برای ${persianName} (تاریخ: ${dateStr})...`);
+              const savedPath = await downloadAndSavePDF(pdfViewerUrl, cleanNewspaperSlug, persianName);
               if (savedPath) pdfUrlToReturn = savedPath;
             }
 
             // دانلود و ذخیره تصویر کاور برای جلوگیری از مشکلات تطبیق نام
-            const savedImgPath = await downloadAndSaveImage(imgUrl, newspaperSlug, dateStr);
+            // تمیز کردن نام روزنامه قبل از استفاده
+            const cleanNewspaperSlug = newspaperSlug.split('?')[0].split('&')[0].trim();
+            const savedImgPath = await downloadAndSaveImage(imgUrl, cleanNewspaperSlug, dateStr);
             if (savedImgPath) {
               imgUrl = savedImgPath;
             }
@@ -963,30 +1097,43 @@ async function extractEconomicNewspapers(html: string, sourceUrl?: string, force
 }
 
 /**
- * ?????? ????? ????? ?? ???? ???? ???? pishkhan.com
+ * دریافت تاریخ امروز به فرمت 8 رقمی برای استفاده در pishkhan.com
  */
 function getTodayPersianDate(): string {
-  const today = new Date();
+  // استفاده از timezone ایران برای دریافت تاریخ امروز
+  const now = new Date();
+  const todayInIran = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Tehran' }));
+  
   const persianDate = new Intl.DateTimeFormat('fa-IR', {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
     calendar: 'persian',
-  }).format(today);
+    timeZone: 'Asia/Tehran',
+  }).format(todayInIran);
 
-  // ????? ?? ???? ???? ????: 14040916
-  const parts = persianDate.split('/');
+  // تبدیل به فرمت 8 رقمی: 14040916
+  // تبدیل اعداد فارسی به انگلیسی
+  const persianDigits = '۰۱۲۳۴۵۶۷۸۹';
+  const englishDigits = '0123456789';
+  let dateStr = persianDate;
+  for (let i = 0; i < 10; i++) {
+    const regex = new RegExp(persianDigits[i], 'g');
+    dateStr = dateStr.replace(regex, englishDigits[i]);
+  }
+  
+  const parts = dateStr.split('/');
   if (parts.length === 3) {
     const year = parts[0];
-    const month = parts[1];
-    const day = parts[2];
+    const month = parts[1].padStart(2, '0');
+    const day = parts[2].padStart(2, '0');
     return `${year}${month}${day}`;
   }
 
-  // Fallback: ??????? ?? ????? ????? ?? ???? ??????
-  const year = 1404; // ???? ?? ???? ???? ?????? ???
-  const month = String(today.getMonth() + 1).padStart(2, '0');
-  const day = String(today.getDate()).padStart(2, '0');
+  // Fallback: استفاده از تاریخ میلادی (نباید به اینجا برسد)
+  const year = 1404;
+  const month = String(todayInIran.getMonth() + 1).padStart(2, '0');
+  const day = String(todayInIran.getDate()).padStart(2, '0');
   return `${year}${month}${day}`;
 }
 
@@ -1121,10 +1268,15 @@ async function fetchWithRetry(
 }
 
 /**
- * GET: ?????? ???? ??????????
+ * GET: دریافت لیست روزنامه‌ها
  * Query params:
- *   - forceDownload: ??? true ????? PDF??? ?? ??? ??? ????? ?????? ???????? ?????? ?????? ??????
+ *   - forceDownload: اگر true باشد، PDFهای جدید کش شده دانلود خواهند شد
  */
+
+// افزایش timeout برای این route (5 دقیقه) - چون دانلود PDF ممکن است طول بکشد
+export const maxDuration = 300; // 5 minutes
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: Request) {
   try {
     // ??????? query params
@@ -1152,9 +1304,9 @@ export async function GET(request: Request) {
     // ?? ???? ???? (???? forceDownload)? PDF??? ?????? ????????
     // ??? ??????? ????????? ??????? (?? ???? ???? ??? ?? ??? ?????? ??? ????)
     if (!forceDownload) {
-      console.log(`?? ?? ??? ?????? ???? ?????????? (???? ?????? PDF)`);
+      console.log(`ℹ️ در حال دریافت روزنامه‌ها (بدون دانلود PDF)`);
     } else {
-      console.log(`?? ?? ??? ?????? ? ?????? PDF ?????????? (forceDownload=true)`);
+      console.log(`ℹ️ در حال دریافت روزنامه‌ها و دانلود PDF (forceDownload=true)`);
     }
 
     // ?????? URL ?? ??????? ?? ??????? ?? ???????
@@ -1187,26 +1339,40 @@ export async function GET(request: Request) {
         newspapers: uniqueNewspapers,
       });
     } else {
-      // ??????? ?? HTML scraping (???? pishkhan.com)
+      // استخراج از HTML scraping (مثل pishkhan.com)
       let pageUrl = sourceUrl;
+      const todayDate = getTodayPersianDate();
+      
+      console.log(`📅 تاریخ امروز (شماره): ${todayDate}`);
+      console.log(`🔗 URL اولیه: ${sourceUrl}`);
 
-      // ??? URL ???? ??? ?? ??? ????? ???? URL ???? ????
+      // اگر URL خالی است یا فقط دامنه است، URL با تاریخ امروز بساز
       if (!pageUrl || pageUrl === 'https://www.pishkhan.com' || pageUrl === 'https://www.pishkhan.com/') {
-        const todayDate = getTodayPersianDate();
         pageUrl = `https://www.pishkhan.com?date=${todayDate}&type=economics`;
       } else if (pageUrl.includes('/economics')) {
-        // ??? URL ???? /economics ???? ???? ?? ??????? ?? (???? ?????)
-        // ??? ???? ???? ??? ??????????? ??????? ?? ????
-        pageUrl = pageUrl;
+        // اگر URL شامل /economics است، تاریخ امروز را اضافه کن
+        // تا روزنامه‌های امروز را بگیرد (نه قدیمی‌ها)
+        if (!pageUrl.includes('date=')) {
+          pageUrl += (pageUrl.includes('?') ? '&' : '?') + `date=${todayDate}`;
+        } else {
+          // اگر تاریخ دارد، آن را با تاریخ امروز جایگزین کن
+          pageUrl = pageUrl.replace(/date=\d{8}/, `date=${todayDate}`);
+        }
       } else {
-        // ??? URL ?? ??????? ????? ?? ?? ??????? ?? ??? ??????? ??
-        // ??? ??? type ????? ? /economics ?? ?????? ????? ??
+        // اگر URL دیگری است، type و date را اضافه کن
         if (!pageUrl.includes('type=') && !pageUrl.includes('/economics')) {
           pageUrl += (pageUrl.includes('?') ? '&' : '?') + 'type=economics';
         }
+        // تاریخ امروز را اضافه کن
+        if (!pageUrl.includes('date=')) {
+          pageUrl += (pageUrl.includes('?') ? '&' : '?') + `date=${todayDate}`;
+        } else {
+          // اگر تاریخ دارد، آن را با تاریخ امروز جایگزین کن
+          pageUrl = pageUrl.replace(/date=\d{8}/, `date=${todayDate}`);
+        }
       }
 
-      console.log(`?? ?????? ??????????? ??????? ?? HTML: ${pageUrl}`);
+      console.log(`🌐 در حال استخراج روزنامه‌ها از HTML: ${pageUrl}`);
 
       // ?????? ???? ?? retry ? timeout
       const response = await fetchWithRetry(

@@ -14,7 +14,57 @@ interface NewspaperItem {
 }
 
 /**
+ * Mapping نام‌های انگلیسی به فارسی (مطابق با archive/route.ts)
+ */
+const newspaperNameMapping: Record<string, string> = {
+  'EghtesadKish': 'اقتصاد کیش',
+  'EghtesadAyandeh': 'اقتصاد آینده',
+  'EghtesadAyande': 'اقتصاد آینده',
+  'DonyayeEghtesad': 'دنیای اقتصاد',
+  'JahanSanat': 'جهان صنعت',
+  'Sarmayeh': 'سرمایه',
+  'TejaratFarda': 'تجارت فردا',
+  'Bourse': 'بورس',
+  'EghtesadNews': 'اقتصاد نیوز',
+  'EghtesadOnline': 'اقتصاد آنلاین',
+  'Kargozaran': 'کارگزاران',
+  'BoursePress': 'بورس پرس',
+  'Tejarat': 'تجارت',
+  'Eghtesad': 'اقتصاد',
+  'Bazar': 'بازار',
+  'Sanat': 'صنعت',
+  'JahanEghtesad': 'جهان اقتصاد',
+  'JahaneEghtesad': 'جهان اقتصاد',
+  'Jahan-e-Eghtesad': 'جهان اقتصاد',
+  'Eskenas': 'اسکناس',
+  'Emruz': 'امروز',
+  'Emrooz': 'امروز',
+  'Sarmaye': 'ثروت',
+  'Khob': 'خوب',
+  'Khoob': 'خوب',
+  'Ruzegar': 'روزگار',
+  'RuzegarMaden': 'روزگار معدن',
+  'Shoroo': 'شروع',
+  'Shorou': 'شروع',
+  'Samat': 'صمت',
+  'Semat': 'صمت',
+  'MojavezeEghtesadi': 'مواجهه اقتصادی',
+  'NagheEghtesad': 'نقش اقتصاد',
+  'HadafVaEghtesad': 'هدف و اقتصاد',
+  'HadafEconomic': 'هدف و اقتصاد',
+  'Asia': 'روزنامه آسیا',
+  'Asiya': 'روزنامه آسیا',
+  'AsrGhanoon': 'عصر قانون',
+  'Movajehe': 'مواجهه اقتصادی',
+  'NaghshDaily': 'نقش اقتصاد',
+  'Roozegar': 'روزگار',
+  'Sarmayegozari': 'سرمایه‌گذاری',
+  'Servat': 'ثروت',
+};
+
+/**
  * تبدیل نام انگلیسی روزنامه به فارسی
+ * از نام فایل PDF استفاده می‌کند (که از API archive می‌آید)
  */
 const getPersianName = (name: string): string => {
   // 1. اگر نام فارسی است (یا شامل حروف فارسی شد)
@@ -28,117 +78,49 @@ const getPersianName = (name: string): string => {
 
     // حذف تاریخ چسبیده (اگر هنوز مانده باشد)
     processed = processed.replace(/\d{4}-\d{1,2}-\d{1,2}/g, '');
+    processed = processed.replace(/[\u06F0-\u06F9]{4}-[\u06F0-\u06F9]{1,2}-[\u06F0-\u06F9]{1,2}/g, '');
 
     return processed.replace(/\s+/g, ' ').trim();
   }
 
   // 2. نرمال‌سازی نام انگلیسی برای حذف پسوند تاریخ
   let cleanName = name
-    .replace(/-?\d{4}-\d{2}-\d{2}$/, '')
-    .replace(/-?[\u06F0-\u06F9]{4}-[\u06F0-\u06F9]{2}-[\u06F0-\u06F9]{2}$/, '');
+    .replace(/-?\d{4}[-_]\d{1,2}[-_]\d{1,2}$/i, '')
+    .replace(/-?[\u06F0-\u06F9]{4}[-_][\u06F0-\u06F9]{1,2}[-_][\u06F0-\u06F9]{1,2}$/i, '');
 
   // 3. اگر نام فقط شامل تاریخ بود (یا خالی شد)، مربوط به روزنامه آسیا است
-  if (!cleanName || /^\d{4}-\d{2}-\d{2}$/.test(name) || /^\d+$/.test(cleanName)) {
+  if (!cleanName || /^\d{4}[-_]\d{1,2}[-_]\d{1,2}$/i.test(name) || /^\d+$/.test(cleanName)) {
     return 'روزنامه آسیا';
   }
 
-  // Mapping table برای نام‌های انگلیسی به فارسی
-  const nameMapping: Record<string, string> = {
-    'Servat': 'ثروت',
-    'Roozegar': 'روزگار',
-    'GostareshSMT': 'گسترش صمت',
-    'Movajehe': 'مواجهه اقتصادی',
-    'NaghshDaily': 'نقش اقتصاد',
-    'HadafEconomic': 'هدف و اقتصاد',
-    'MadanDaily': 'روزگار معدن',
-    'DonyayeEghtesad': 'دنیای اقتصاد',
-    'JahanSanat': 'جهان صنعت',
-    'Sarmayeh': 'سرمایه',
-    'TejaratFarda': 'تجارت فردا',
-    'Bourse': 'بورس',
-    'EghtesadNews': 'اقتصاد نیوز',
-    'EghtesadOnline': 'اقتصاد آنلاین',
-    'Kargozaran': 'کارگزاران',
-    'BoursePress': 'بورس پرس',
-    'Tejarat': 'تجارت',
-    'Eghtesad': 'اقتصاد',
-    'Bazar': 'بازار',
-    'Sanat': 'صنعت',
-    'EghtesadeMardom': 'اقتصاد مردم',
-    'EghtesadeMeli': 'اقتصاد ملی',
-    'TejaratOnline': 'تجارت آنلاین',
-    'Jahan-e-Eghtesad': 'جهان اقتصاد',
-    'JahaneEghtesad': 'جهان اقتصاد',
-    'JahanEghtesad': 'جهان اقتصاد',
-    'Emruz': 'امروز',
-    'Emrooz': 'امروز',
-    'Khob': 'خوب',
-    'Khoob': 'خوب',
-    'Shoroo': 'شروع',
-    'Shorou': 'شروع',
-    'AsrGhanoon': 'عصر قانون',
-    'AsreTosee': 'عصر توسعه',
-    'KhabarVarzeshi': 'خبر ورزشی',
-    'Shoot': 'شوت',
-    'Goal': 'گل',
-    'Piroozi': 'پیروزی',
-    'Esteghlal': 'استقلال',
-    'IranVarzeshi': 'ایران ورزشی',
-    'AbrarVarzeshi': 'ابرار ورزشی',
-    'Hamshahri': 'همشهری',
-    'JamJam': 'جام جم',
-    'Iran': 'ایران',
-    'Etemad': 'اعتماد',
-    'Shargh': 'شرق',
-    'Kayhan': 'کیهان',
-    'Ettelaat': 'اطلاعات',
-    'JomhouriEslami': 'جمهوری اسلامی',
-    'Resalat': 'رسالت',
-    'MardomSalari': 'مردم سالاری',
-    'ArmanMelli': 'آرمان ملی',
-    'AftabYazd': 'آفتاب یزد',
-    'Ebtekar': 'ابتکار',
-    'Javan': 'جوان',
-    'VatanEmrooz': 'وطن امروز',
-    'SiasatRooz': 'سیاست روز',
-    'AsrIranian': 'عصر ایرانیان',
-    'SahebGhalam': 'صاحب قلم',
-    'Sayeh': 'سایه',
-    'Kaenat': 'کائنات',
-    'KarVaKargar': 'کار و کارگر',
-    'Hemayat': 'حمایت',
-    'Rah_e_Mardom': 'راه مردم',
-    'RaheMardom': 'راه مردم',
-    'RooyeshMellat': 'رویش ملت',
-    'SetarehSobh': 'ستاره صبح',
-    'SedayeEslahat': 'صدای اصلاحات',
-    'NaslTosee': 'نسل توسعه',
-    'NekatPress': 'نکات پرس',
-    'VaghayeEttefaghieh': 'وقایع اتفاقیه',
-    'Hadaf': 'هدف',
-    'AkhbarSanat': 'اخبار صنعت',
-    'akhbarsanat': 'اخبار صنعت',
-  };
-
-  // جستجو در mapping
-  if (nameMapping[name]) {
-    return nameMapping[name];
+  // 4. استفاده از mapping (اولویت اول)
+  if (newspaperNameMapping[cleanName]) {
+    return newspaperNameMapping[cleanName];
   }
 
-  // mapping برای cleanName
-  if (nameMapping[cleanName]) {
-    return nameMapping[cleanName];
-  }
-
-  // جستجو با case-insensitive
-  const lowerName = name.toLowerCase();
-  for (const [key, value] of Object.entries(nameMapping)) {
+  // 5. جستجوی case-insensitive در mapping
+  const lowerName = cleanName.toLowerCase();
+  for (const [key, value] of Object.entries(newspaperNameMapping)) {
     if (key.toLowerCase() === lowerName) {
       return value;
     }
   }
 
-  // اگر پیدا نشد، نام پاک شده را برگردان
+  // 6. حذف خط تیره و تبدیل به CamelCase برای جستجو
+  const camelCaseName = cleanName.replace(/-/g, '');
+  if (newspaperNameMapping[camelCaseName]) {
+    return newspaperNameMapping[camelCaseName];
+  }
+
+  // 7. جستجوی case-insensitive برای camelCaseName
+  const camelCaseLower = camelCaseName.toLowerCase();
+  for (const [key, value] of Object.entries(newspaperNameMapping)) {
+    if (key.toLowerCase() === camelCaseLower) {
+      return value;
+    }
+  }
+
+  // 8. اگر پیدا نشد، نام پاک شده را برگردان
   if (/[\u0600-\u06FF]/.test(cleanName)) {
     return cleanName.replace(/[-_]/g, ' ').trim();
   }
@@ -177,12 +159,41 @@ export default function NewspaperKioskPage() {
         fetch("/api/v1/public/newspapers"),
       ]);
 
+      // Check if responses are HTML (likely a redirect to login page)
+      const archiveContentType = archiveResponse.headers.get('content-type') || '';
+      const newspapersContentType = newspapersResponse.headers.get('content-type') || '';
+
+      if (!archiveContentType.includes('application/json')) {
+        const text = await archiveResponse.text();
+        if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<!doctype')) {
+          console.error('Archive API returned HTML instead of JSON');
+          setArchive(null);
+          return;
+        }
+      }
+
+      if (!newspapersContentType.includes('application/json')) {
+        const text = await newspapersResponse.text();
+        if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<!doctype')) {
+          console.error('Newspapers API returned HTML instead of JSON');
+          // Continue without newspapers data
+        }
+      }
+
       if (archiveResponse.ok) {
         const archiveData = await archiveResponse.json();
 
         // اگر newspapers هم دریافت شد، عکس‌ها را match کن
-        if (newspapersResponse.ok) {
-          const newspapersData = await newspapersResponse.json();
+        if (newspapersResponse.ok && newspapersContentType.includes('application/json')) {
+          let newspapersData;
+          try {
+            newspapersData = await newspapersResponse.json();
+          } catch (jsonError) {
+            console.error('Error parsing newspapers JSON:', jsonError);
+            newspapersData = null;
+          }
+          
+          if (newspapersData) {
           if (newspapersData.success && newspapersData.newspapers) {
             // Mapping table برای نام‌های روزنامه‌های اقتصادی (بر اساس economicNewspaperNames)
             const newspaperNameMapping: Record<string, string[]> = {
@@ -294,16 +305,18 @@ export default function NewspaperKioskPage() {
             };
 
             // match کردن عکس‌ها با archive
+            // نکته مهم: نام از فایل PDF استخراج شده است و باید حفظ شود
+            // فقط عکس را match می‌کنیم، نه نام را
             if (archiveData.newspapers) {
               archiveData.newspapers = archiveData.newspapers.map((paper: NewspaperItem) => {
-                const match = findMatchingImage(paper.name);
-                if (!match) {
-                  // console.log ... (optional, removed for brevity or keep?)
-                }
+                // استفاده از filename برای match کردن (دقیق‌تر از name)
+                const match = findMatchingImage(paper.filename || paper.name);
                 return {
                   ...paper,
+                  // فقط عکس را match می‌کنیم، نام از فایل PDF حفظ می‌شود
                   imageUrl: match?.url || paper.imageUrl,
-                  name: match?.name || paper.name, // Use clean name
+                  // نام از فایل PDF استخراج شده و نباید تغییر کند
+                  name: paper.name,
                 };
               });
             }
@@ -311,16 +324,20 @@ export default function NewspaperKioskPage() {
             if (archiveData.groupedByDate) {
               Object.keys(archiveData.groupedByDate).forEach((dateStr) => {
                 archiveData.groupedByDate[dateStr] = archiveData.groupedByDate[dateStr].map((paper: NewspaperItem) => {
-                  const match = findMatchingImage(paper.name);
+                  // استفاده از filename برای match کردن (دقیق‌تر از name)
+                  const match = findMatchingImage(paper.filename || paper.name);
                   return {
                     ...paper,
+                    // فقط عکس را match می‌کنیم، نام از فایل PDF حفظ می‌شود
                     imageUrl: match?.url || paper.imageUrl,
-                    name: match?.name || paper.name, // Use clean name
+                    // نام از فایل PDF استخراج شده و نباید تغییر کند
+                    name: paper.name,
                   };
                 });
               });
             }
           }
+        }
         }
 
         setArchive(archiveData);
@@ -332,6 +349,10 @@ export default function NewspaperKioskPage() {
       }
     } catch (error) {
       console.error("Error fetching archive:", error);
+      if (error instanceof SyntaxError && error.message.includes('JSON')) {
+        console.error('JSON parsing error - likely HTML response');
+      }
+      setArchive(null);
     } finally {
       setLoading(false);
     }
@@ -339,15 +360,36 @@ export default function NewspaperKioskPage() {
 
   const formatDateForDisplay = (dateStr: string) => {
     try {
-      // اگر dateStr به صورت YYYY-MM-DD است (میلادی)
-      if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
-        const date = new Date(dateStr);
-        return new Intl.DateTimeFormat('fa-IR', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-          calendar: 'persian',
-        }).format(date);
+      // اگر dateStr به صورت YYYY-MM-DD است
+      if (dateStr.match(/^\d{4}-\d{1,2}-\d{1,2}$/)) {
+        const year = parseInt(dateStr.split('-')[0]);
+        
+        // اگر سال > 1500 است، این یک تاریخ شمسی است
+        if (year > 1500) {
+          const parts = dateStr.split('-');
+          const persianYear = parseInt(parts[0]);
+          const month = parseInt(parts[1]);
+          const day = parseInt(parts[2]);
+          
+          // استفاده مستقیم از فرمت شمسی (بدون تبدیل به میلادی)
+          // چون dateStr خودش تاریخ شمسی است، نیازی به تبدیل نیست
+          // ماه‌های شمسی: 1=فروردین, 2=اردیبهشت, ..., 9=آذر, 10=دی, 11=بهمن, 12=اسفند
+          const monthNames = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'];
+          const monthName = monthNames[month - 1] || month.toString();
+          return `${day} ${monthName} ${persianYear}`;
+        } else {
+          // تاریخ میلادی است
+          const date = new Date(dateStr);
+          if (isNaN(date.getTime())) return dateStr;
+          
+          return new Intl.DateTimeFormat('fa-IR', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            calendar: 'persian',
+            timeZone: 'Asia/Tehran',
+          }).format(date);
+        }
       }
       // اگر dateStr تاریخ شمسی است، همان را برگردان
       return dateStr;
@@ -358,10 +400,30 @@ export default function NewspaperKioskPage() {
 
   const getDayOfWeek = (dateStr: string) => {
     try {
-      // اگر dateStr به صورت YYYY-MM-DD است (میلادی)
-      if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
-        const date = new Date(dateStr);
-        return new Intl.DateTimeFormat('fa-IR', { weekday: 'long' }).format(date);
+      // اگر dateStr به صورت YYYY-MM-DD است
+      if (dateStr.match(/^\d{4}-\d{1,2}-\d{1,2}$/)) {
+        const year = parseInt(dateStr.split('-')[0]);
+        let date: Date;
+        
+        // اگر سال > 1500 است، این یک تاریخ شمسی است
+        if (year > 1500) {
+          const parts = dateStr.split('-');
+          const persianYear = parseInt(parts[0]);
+          const month = parseInt(parts[1]);
+          const day = parseInt(parts[2]);
+          
+          // تبدیل شمسی به میلادی (تقریبی)
+          const gregorianYear = persianYear + 621;
+          date = new Date(Date.UTC(gregorianYear, month - 1, day, 12, 0, 0));
+        } else {
+          // تاریخ میلادی است
+          date = new Date(dateStr);
+        }
+        
+        return new Intl.DateTimeFormat('fa-IR', { 
+          weekday: 'long',
+          timeZone: 'Asia/Tehran',
+        }).format(date);
       }
       return '';
     } catch {
