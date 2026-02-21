@@ -1,14 +1,14 @@
 "use client";
 import React, { useState, useEffect, useMemo } from "react";
 import { useRouter, useParams } from "next/navigation";
-import Input from "@/components/Admin/form/input/InputField";
-import Label from "@/components/Admin/form/Label";
-import Select from "@/components/Admin/form/Select";
-import TextArea from "@/components/Admin/form/input/TextArea";
-import Checkbox from "@/components/Admin/form/input/Checkbox";
-import AdPreview from "@/components/Admin/ads/AdPreview";
-import ImageUploadCrop from "@/components/Admin/ads/ImageUploadCrop";
-import HTMLEditor from "@/components/Admin/ads/HTMLEditor";
+import Input from "@/components/admin/form/input/inputfield";
+import Label from "@/components/admin/form/label";
+import Select from "@/components/admin/form/select";
+import TextArea from "@/components/admin/form/input/textarea";
+import Checkbox from "@/components/admin/form/input/checkbox";
+import AdPreview from "@/components/admin/ads/adpreview";
+import ImageUploadCrop from "@/components/admin/ads/imageuploadcrop";
+import HTMLEditor from "@/components/admin/ads/htmleditor";
 import {
   getAdTemplate,
   getSizeSuggestions,

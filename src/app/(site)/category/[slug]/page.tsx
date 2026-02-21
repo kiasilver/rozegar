@@ -4,9 +4,9 @@ import { prisma } from '@/lib/core/prisma';
 import { generateCategoryStructuredData } from '@/lib/content/seo/seo';
 import Link from 'next/link';
 import Image from 'next/image';
-import BlogImage from '@/components/Site/blog/BlogImage';
-import AdBanner from '@/components/Site/ads/AdBanner';
-import SidebarRight from '@/components/Site/sidebar/sidebar_right';
+import BlogImage from '@/components/site/blog/blogimage';
+import AdBanner from '@/components/site/ads/adbanner';
+import SidebarRight from '@/components/site/sidebar/sidebar_right';
 import { getBlogUrl } from '@/lib/content/blog/blog-url';
 
 // ISR - revalidate every hour for better performance

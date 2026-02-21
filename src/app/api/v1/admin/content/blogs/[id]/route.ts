@@ -3,9 +3,23 @@ import { prisma } from '@/lib/core/prisma';
 
 export async function GET(req: NextRequest, props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
-  const id = parseInt(params.id);
+  const idParam = params.id;
 
-  if (isNaN(id)) return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
+  // IMPORTANT: Check for known static routes FIRST before processing as ID
+  // Next.js should match static routes before dynamic routes, but this is a safety check
+  const knownStaticRoutes = ['bloglist', 'blogList', 'recent', 'category', 'upload', 'generate-seo', 'generation-progress', 'update-slugs', 'update-category-slugs', 'bulkdelete'];
+  
+  // If this matches a known static route, return 404 to let Next.js try the static route
+  if (knownStaticRoutes.includes(idParam) || knownStaticRoutes.includes(idParam.toLowerCase())) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
+
+  // Only accept numeric IDs
+  if (!/^\d+$/.test(idParam)) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
+
+  const id = parseInt(idParam);
 
   try {
     const blog = await prisma.blog.findUnique({
@@ -26,17 +40,25 @@ export async function GET(req: NextRequest, props: { params: Promise<{ id: strin
 }
 
 export async function PUT(req: NextRequest, props: { params: Promise<{ id: string }> }) {
-  // Implement update logic if needed, or keep simple for now
   return NextResponse.json({ success: false, error: 'Not implemented yet' }, { status: 501 });
 }
 
 export async function DELETE(req: NextRequest, props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
-  const id = parseInt(params.id);
+  const idParam = params.id;
 
-  if (isNaN(id)) {
-    return NextResponse.json({ success: false, error: 'Invalid ID' }, { status: 400 });
+  // Check for known static routes
+  const knownStaticRoutes = ['bloglist', 'blogList', 'recent', 'category', 'upload', 'generate-seo', 'generation-progress', 'update-slugs', 'update-category-slugs', 'bulkdelete'];
+  if (knownStaticRoutes.includes(idParam) || knownStaticRoutes.includes(idParam.toLowerCase())) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
   }
+
+  // Only accept numeric IDs
+  if (!/^\d+$/.test(idParam)) {
+    return NextResponse.json({ success: false, error: 'Not found' }, { status: 404 });
+  }
+
+  const id = parseInt(idParam);
 
   try {
     await prisma.blog.delete({ where: { id } });
@@ -46,4 +68,6 @@ export async function DELETE(req: NextRequest, props: { params: Promise<{ id: st
     return NextResponse.json({ success: false, error: 'Failed to delete' }, { status: 500 });
   }
 }
+
+
 

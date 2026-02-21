@@ -1,12 +1,12 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import PageBreadcrumb from "@/components/Admin/common/PageBreadCrumb";
-import ComponentCard from '@/components/Admin/common/ComponentCard';
-import Label from '@/components/Admin/form/Label';
-import Input from '@/components/Admin/form/input/InputField';
-import TextArea from '@/components/Admin/form/input/TextArea';
-import Button from '@/components/Admin/ui/button/Button';
-import { useAlert } from "@/context/Admin/AlertContext";
+import PageBreadcrumb from "@/components/admin/common/pagebreadcrumb";
+import ComponentCard from '@/components/admin/common/componentcard';
+import Label from '@/components/admin/form/label';
+import Input from '@/components/admin/form/input/inputfield';
+import TextArea from '@/components/admin/form/input/textarea';
+import Button from '@/components/admin/ui/button/button';
+import { useAlert } from "@/context/admin/alertcontext";
 import { DndContext, closestCenter, DragEndEvent } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -22,7 +22,7 @@ import {
   TableCell,
   TableHeader,
   TableRow,
-} from "@/components/Admin/ui/table";
+} from "@/components/admin/ui/table";
 
 interface FooterMenu {
   id: number;

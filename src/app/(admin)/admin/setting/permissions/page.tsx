@@ -1,11 +1,11 @@
 "use client";
-import ComponentCard from "@/components/Admin/common/ComponentCard";
-import PageBreadcrumb from "@/components/Admin/common/PageBreadCrumb";
+import ComponentCard from "@/components/admin/common/componentcard";
+import PageBreadcrumb from "@/components/admin/common/pagebreadcrumb";
 import React, { useEffect, useState } from "react";
-import { useAlert } from "@/context/Admin/AlertContext";
-import Button from "@/components/Admin/ui/button/Button";
-import Badge from "@/components/Admin/ui/badge/Badge";
-import Label from "@/components/Admin/form/Label";
+import { useAlert } from "@/context/admin/alertcontext";
+import Button from "@/components/admin/ui/button/button";
+import Badge from "@/components/admin/ui/badge/badge";
+import Label from "@/components/admin/form/label";
 import ExpandMoreOutlinedIcon from '@mui/icons-material/ExpandMoreOutlined';
 
 interface Menu {

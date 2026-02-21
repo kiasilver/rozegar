@@ -1,12 +1,12 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import Badge from "@/components/Admin/ui/badge/Badge";
-import Input from "@/components/Admin/form/input/InputField";
-import Select from "@/components/Admin/form/Select";
-import PageBreadcrumb from "@/components/Admin/common/PageBreadCrumb";
-import { Modal } from "@/components/Admin/ui/modal";
-import AdPreview from "@/components/Admin/ads/AdPreview";
+import Badge from "@/components/admin/ui/badge/badge";
+import Input from "@/components/admin/form/input/inputfield";
+import Select from "@/components/admin/form/select";
+import PageBreadcrumb from "@/components/admin/common/pagebreadcrumb";
+import { Modal } from "@/components/admin/ui/modal";
+import AdPreview from "@/components/admin/ads/adpreview";
 
 interface Ad {
   id: number;

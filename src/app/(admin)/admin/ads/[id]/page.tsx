@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import AdPreview from "@/components/Admin/ads/AdPreview";
+import AdPreview from "@/components/admin/ads/adpreview";
 import Link from "next/link";
 
 interface Ad {

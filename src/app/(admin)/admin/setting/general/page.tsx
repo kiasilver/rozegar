@@ -1,21 +1,21 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import PageBreadcrumb from "@/components/Admin/common/PageBreadCrumb";
-import Checkbox from "@/components/Admin/form/input/Checkbox";
-import FileInput from "@/components/Admin/form/input/FileInput";
-import TextArea from "@/components/Admin/form/input/TextArea";
-import ComponentCard from '@/components/Admin/common/ComponentCard';
-import Label from '@/components/Admin/form/Label';
-import Input from '@/components/Admin/form/input/InputField';
-import Select from '@/components/Admin/form/Select';
-import Button from '@/components/Admin/ui/button/Button';
+import PageBreadcrumb from "@/components/admin/common/pagebreadcrumb";
+import Checkbox from "@/components/admin/form/input/checkbox";
+import FileInput from "@/components/admin/form/input/fileinput";
+import TextArea from "@/components/admin/form/input/textarea";
+import ComponentCard from '@/components/admin/common/componentcard';
+import Label from '@/components/admin/form/label';
+import Input from '@/components/admin/form/input/inputfield';
+import Select from '@/components/admin/form/select';
+import Button from '@/components/admin/ui/button/button';
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import { useAlert } from "@/context/Admin/AlertContext";
+import { useAlert } from "@/context/admin/alertcontext";
 import Image from 'next/image';
-import { useModal } from "@/hooks/Admin/useModal";
-import MediaGalleryModal from "@/components/Admin/media/MediaGalleryModal";
+import { useModal } from "@/hooks/admin/usemodal";
+import MediaGalleryModal from "@/components/admin/media/mediagallerymodal";
 
 // Timezone options
 const timezoneOptions = [

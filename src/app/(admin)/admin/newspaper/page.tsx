@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAlert } from "@/context/Admin/AlertContext";
-import PageBreadcrumb from "@/components/Admin/common/PageBreadCrumb";
-import Label from "@/components/Admin/form/Label";
-import Input from "@/components/Admin/form/input/InputField";
-import Checkbox from "@/components/Admin/form/input/Checkbox";
-import Button from "@/components/Admin/ui/button/Button";
+import { useAlert } from "@/context/admin/alertcontext";
+import PageBreadcrumb from "@/components/admin/common/pagebreadcrumb";
+import Label from "@/components/admin/form/label";
+import Input from "@/components/admin/form/input/inputfield";
+import Checkbox from "@/components/admin/form/input/checkbox";
+import Button from "@/components/admin/ui/button/button";
 
 interface Newspaper {
   name: string;
@@ -40,6 +40,14 @@ export default function NewspaperPage() {
   const fetchLastDownloadInfo = async () => {
     try {
       const response = await fetch("/api/v1/admin/content/newspapers/last-download");
+      const contentType = response.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        const text = await response.text();
+        if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<!doctype')) {
+          console.error('Last download API returned HTML instead of JSON');
+          return;
+        }
+      }
       if (response.ok) {
         const data = await response.json();
         setLastDownloadDate(data.lastDownloadDate || null);
@@ -47,6 +55,9 @@ export default function NewspaperPage() {
       }
     } catch (error) {
       console.error("Error fetching last download info:", error);
+      if (error instanceof SyntaxError && error.message.includes('JSON')) {
+        console.error('JSON parsing error - likely HTML response');
+      }
     }
   };
 
@@ -54,6 +65,15 @@ export default function NewspaperPage() {
     try {
       setLoading(true);
       const response = await fetch("/api/v1/admin/content/newspapers");
+      const contentType = response.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        const text = await response.text();
+        if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<!doctype')) {
+          console.error('Settings API returned HTML instead of JSON');
+          showAlert("خطا در احراز هویت. لطفاً دوباره وارد سیستم شوید", "error");
+          return;
+        }
+      }
       if (response.ok) {
         const data = await response.json();
         setEnabled(data.enabled || false);
@@ -63,7 +83,11 @@ export default function NewspaperPage() {
       }
     } catch (error) {
       console.error("Error fetching settings:", error);
-      showAlert("خطا در دریافت تنظیمات", "error");
+      if (error instanceof SyntaxError && error.message.includes('JSON')) {
+        showAlert("خطا در احراز هویت. لطفاً دوباره وارد سیستم شوید", "error");
+      } else {
+        showAlert("خطا در دریافت تنظیمات", "error");
+      }
     } finally {
       setLoading(false);
     }
@@ -86,6 +110,15 @@ export default function NewspaperPage() {
         }),
       });
 
+      const contentType = response.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        const text = await response.text();
+        if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<!doctype')) {
+          showAlert("خطا در احراز هویت. لطفاً دوباره وارد سیستم شوید", "error");
+          return;
+        }
+      }
+
       if (response.ok) {
         const data = await response.json();
         console.log("✅ تنظیمات ذخیره شد:", data);
@@ -93,7 +126,12 @@ export default function NewspaperPage() {
         // به‌روزرسانی تنظیمات از سرور برای اطمینان
         await fetchSettings();
       } else {
-        const data = await response.json();
+        let data;
+        try {
+          data = await response.json();
+        } catch {
+          data = { error: 'خطا در ذخیره تنظیمات' };
+        }
         console.error("❌ خطا در ذخیره:", data);
         showAlert(data.error || "خطا در ذخیره تنظیمات", "error");
       }
@@ -121,8 +159,16 @@ export default function NewspaperPage() {
         }),
       });
 
-      // سپس تست را انجام بده
-      const response = await fetch("/api/v1/public/newspapers");
+      // سپس تست را انجام بده - با forceDownload=true تا PDF‌های جدید دانلود شوند
+      const response = await fetch("/api/v1/public/newspapers?forceDownload=true");
+      const contentType = response.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        const text = await response.text();
+        if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<!doctype')) {
+          showAlert("خطا در احراز هویت. لطفاً دوباره وارد سیستم شوید", "error");
+          return;
+        }
+      }
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
@@ -161,6 +207,15 @@ export default function NewspaperPage() {
         },
       });
 
+      const contentType = response.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        const text = await response.text();
+        if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<!doctype')) {
+          showAlert("خطا در احراز هویت. لطفاً دوباره وارد سیستم شوید", "error");
+          return;
+        }
+      }
+
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
@@ -179,7 +234,12 @@ export default function NewspaperPage() {
           );
         }
       } else {
-        const errorData = await response.json();
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch {
+          errorData = { error: 'خطا در دانلود PDF‌ها' };
+        }
         showAlert(
           errorData.error || "خطا در دانلود PDF‌ها",
           "error"
@@ -209,6 +269,15 @@ export default function NewspaperPage() {
         },
       });
 
+      const contentType = response.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        const text = await response.text();
+        if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<!doctype')) {
+          showAlert("خطا در احراز هویت. لطفاً دوباره وارد سیستم شوید", "error");
+          return;
+        }
+      }
+
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
@@ -223,7 +292,12 @@ export default function NewspaperPage() {
           );
         }
       } else {
-        const errorData = await response.json();
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch {
+          errorData = { error: 'خطا در پاک کردن فایل‌ها' };
+        }
         showAlert(
           errorData.error || "خطا در پاک کردن فایل‌ها",
           "error"
@@ -253,6 +327,15 @@ export default function NewspaperPage() {
         },
       });
 
+      const contentType = response.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        const text = await response.text();
+        if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<!doctype')) {
+          showAlert("خطا در احراز هویت. لطفاً دوباره وارد سیستم شوید", "error");
+          return;
+        }
+      }
+
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
@@ -267,7 +350,12 @@ export default function NewspaperPage() {
           );
         }
       } else {
-        const errorData = await response.json();
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch {
+          errorData = { error: 'خطا در پاک کردن فایل‌ها' };
+        }
         showAlert(
           errorData.error || "خطا در پاک کردن فایل‌ها",
           "error"

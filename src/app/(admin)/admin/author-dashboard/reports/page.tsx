@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import PageBreadcrumb from "@/components/Admin/common/PageBreadCrumb";
-import ComponentCard from "@/components/Admin/common/ComponentCard";
+import PageBreadcrumb from "@/components/admin/common/pagebreadcrumb";
+import ComponentCard from "@/components/admin/common/componentcard";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import LoadingSpinner from "@/components/Admin/common/LoadingSpinner";
-import ErrorAlert from "@/components/Admin/common/ErrorAlert";
+import LoadingSpinner from "@/components/admin/common/loadingspinner";
+import ErrorAlert from "@/components/admin/common/erroralert";
 
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 

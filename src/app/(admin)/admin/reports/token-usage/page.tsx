@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import PageBreadcrumb from "@/components/Admin/common/PageBreadCrumb";
-import ComponentCard from "@/components/Admin/common/ComponentCard";
+import PageBreadcrumb from "@/components/admin/common/pagebreadcrumb";
+import ComponentCard from "@/components/admin/common/componentcard";
 
 interface PeriodStats {
   summary: {

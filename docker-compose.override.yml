@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  db:
+    # محدودیت CPU برای PostgreSQL
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'  # حداکثر 2 CPU core
+          memory: 4G   # حداکثر 4GB RAM
+        reservations:
+          cpus: '0.5'  # حداقل 0.5 CPU core
+          memory: 1G   # حداقل 1GB RAM
+    # تنظیمات PostgreSQL برای محدود کردن query ها
+    command:
+      - "postgres"
+      - "-c"
+      - "statement_timeout=3000"
+      - "-c"
+      - "idle_in_transaction_session_timeout=5000"
+      - "-c"
+      - "max_connections=20"
+      - "-c"
+      - "shared_buffers=256MB"
+      - "-c"
+      - "effective_cache_size=1GB"
+      - "-c"
+      - "maintenance_work_mem=64MB"
+      - "-c"
+      - "checkpoint_completion_target=0.9"
+      - "-c"
+      - "wal_buffers=16MB"
+      - "-c"
+      - "default_statistics_target=100"
+      - "-c"
+      - "random_page_cost=1.1"
+      - "-c"
+      - "effective_io_concurrency=200"
+      - "-c"
+      - "work_mem=4MB"
+      - "-c"
+      - "min_wal_size=1GB"
+      - "-c"
+      - "max_wal_size=4GB"
+

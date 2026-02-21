@@ -1,14 +1,14 @@
 "use client";
 import '@/styles/globals-site.css'
-import Header2 from '@/components/Site/header/Header2'
-import Footer1 from '@/components/Site/footer/Footer1'
-import AdStickyBottomRight from '@/components/Site/ads/AdStickyBottomRight'
-import AdPopupBottomRight from '@/components/Site/ads/AdPopupBottomRight'
-import MetaDescription from '@/components/Site/MetaDescription'
-import PreviewStyles from '@/components/Admin/PreviewStyles'
-import ColorVariables from '@/components/Site/ColorVariables'
-import CustomFonts from '@/components/Site/CustomFonts'
-import PriceTicker from '@/components/Site/price-ticker/PriceTicker'
+import Header2 from '@/components/site/header/header2'
+import Footer1 from '@/components/site/footer/footer1'
+import AdStickyBottomRight from '@/components/site/ads/adstickybottomright'
+import AdPopupBottomRight from '@/components/site/ads/adpopupbottomright'
+import MetaDescription from '@/components/site/metadescription'
+import PreviewStyles from '@/components/admin/previewstyles'
+import ColorVariables from '@/components/site/colorvariables'
+import CustomFonts from '@/components/site/customfonts'
+import PriceTicker from '@/components/site/price-ticker/priceticker'
 import { useEffect } from 'react';
 
 export default function SiteLayout({ children }: { children: React.ReactNode }) {

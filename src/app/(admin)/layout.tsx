@@ -1,17 +1,17 @@
 "use client";
 import '@/styles/globals-admin.css';
-import { useSidebar } from "@/context/Admin/SidebarContext";
-import AppHeader from "@/layout/Admin/AppHeader";
-import AppSidebar from "@/layout/Admin/AppSidebar";
-import Backdrop from "@/layout/Admin/Backdrop";
+import { useSidebar } from "@/context/admin/sidebarcontext";
+import AppHeader from "@/layout/admin/appheader";
+import AppSidebar from "@/layout/admin/appsidebar";
+import Backdrop from "@/layout/admin/backdrop";
 import React, { useEffect, useState } from "react";
-import { LanguageProvider } from '@/context/Admin/Language';
-import { SidebarProvider } from '@/context/Admin/SidebarContext';
-import { ThemeProvider } from '@/context/Admin/ThemeContext';
+import { LanguageProvider } from '@/context/admin/language';
+import { SidebarProvider } from '@/context/admin/sidebarcontext';
+import { ThemeProvider } from '@/context/admin/themecontext';
 import { usePathname } from "next/navigation"; // Import usePathname hook
-import { AlertProvider } from "@/context/Admin/AlertContext"; // Import AlertProvider
-import { ProgressProvider } from "@/context/Admin/ProgressContext"; // Import ProgressProvider
-import { RSSProgressProvider } from "@/context/Admin/RSSProgressContext"; // Import RSSProgressProvider
+import { AlertProvider } from "@/context/admin/alertcontext"; // Import AlertProvider
+import { ProgressProvider } from "@/context/admin/progresscontext"; // Import ProgressProvider
+import { RSSProgressProvider } from "@/context/admin/rssprogresscontext"; // Import RSSProgressProvider
 import { HeroUIProvider } from "@heroui/react";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

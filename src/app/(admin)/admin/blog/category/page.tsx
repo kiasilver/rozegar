@@ -1,11 +1,11 @@
 "use client";
 import {
   Table, TableBody, TableCell, TableHeader, TableRow
-} from "@/components/Admin/ui/table";
+} from "@/components/admin/ui/table";
 
-import Checkbox from "@/components/Admin/form/input/Checkbox";
+import Checkbox from "@/components/admin/form/input/checkbox";
 
-import CategoryForm from "@/components/Admin/blog/AddCategoryForm";
+import CategoryForm from "@/components/admin/blog/addcategoryform";
 import DehazeOutlinedIcon from '@mui/icons-material/DragIndicatorOutlined';
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -13,8 +13,8 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import slugify from "slugify";
 import { slugifyPersian } from "@/lib/utils/slugify-fa";
-import { isPersian } from "@/lib/utils/isPersian";
-import { useAlert } from "@/context/Admin/AlertContext";
+import { isPersian } from "@/lib/utils/ispersian";
+import { useAlert } from "@/context/admin/alertcontext";
 import { DndContext, closestCenter } from '@dnd-kit/core';
 import {  SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';

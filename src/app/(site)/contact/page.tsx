@@ -1,7 +1,7 @@
 ﻿import { Metadata } from 'next';
 import { prisma } from '@/lib/core/prisma';
 import { notFound } from 'next/navigation';
-import ContactUsRenderer from '@/components/Site/pages/ContactUsRenderer';
+import ContactUsRenderer from '@/components/site/pages/contactusrenderer';
 
 // Static page with ISR - revalidate every hour
 export const revalidate = 3600;

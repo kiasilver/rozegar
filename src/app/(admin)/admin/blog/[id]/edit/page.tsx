@@ -3,21 +3,21 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Label from "@/components/Admin/form/Label";
-import Input from "@/components/Admin/form/input/InputField";
-import Textarea from "@/components/Admin/form/input/TextArea";
-import Select from "@/components/Admin/form/Select";
-import Button from "@/components/Admin/ui/button/Button";
-import DragDropFile from "@/components/Admin/form/form-elements/DropZone";
-import Checkbox from "@/components/Admin/form/input/Checkbox";
-import { useAlert } from "@/context/Admin/AlertContext";
+import Label from "@/components/admin/form/label";
+import Input from "@/components/admin/form/input/inputfield";
+import Textarea from "@/components/admin/form/input/textarea";
+import Select from "@/components/admin/form/select";
+import Button from "@/components/admin/ui/button/button";
+import DragDropFile from "@/components/admin/form/form-elements/dropzone";
+import Checkbox from "@/components/admin/form/input/checkbox";
+import { useAlert } from "@/context/admin/alertcontext";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import WordPressEditor from "@/components/Admin/form/richtext/WordPressEditor";
+import WordPressEditor from "@/components/admin/form/richtext/wordpresseditor";
 import { z } from "zod";
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
-import SEOPanel from "@/components/Admin/seo/SEOPanel";
+import SEOPanel from "@/components/admin/seo/seopanel";
 
 const blogSchema = z.object({
   name: z.string().min(3, "عنوان باید حداقل ۳ کاراکتر باشد"),

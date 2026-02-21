@@ -7,18 +7,19 @@ import {
   TableCell,
   TableHeader,
   TableRow,
-} from "@/components/Admin/ui/table";
+} from "@/components/admin/ui/table";
 import { useEffect, useState } from "react";
-import Checkbox from "@/components/Admin/form/input/Checkbox";
+import Checkbox from "@/components/admin/form/input/checkbox";
 import React from "react";
-import Select from "@/components/Admin/form/Select";
-import Label from "@/components/Admin/form/Label";
+import Select from "@/components/admin/form/select";
+import Label from "@/components/admin/form/label";
 import Image from "next/image";
-import { useAlert } from "@/context/Admin/AlertContext";
-import Dialog from "@/components/Admin/dialog/error/modal1"; // ایمپورت مودال حذف
+import { useAlert } from "@/context/admin/alertcontext";
+import Dialog from "@/components/admin/dialog/error/modal1"; // ایمپورت مودال حذف
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
-import PageBreadcrumb from "@/components/Admin/common/PageBreadCrumb";
+import PageBreadcrumb from "@/components/admin/common/pagebreadcrumb";
+
 interface Blog {
   id: number;
   image: string;
@@ -47,7 +48,9 @@ export default function BlogList() {
   const [agentFilter, setAgentFilter] = useState<'all' | 'agent' | 'human'>('all'); // فیلتر Agent
 
   useEffect(() => {
-    fetch("/api/v1/admin/content/blogs/blogList")
+    fetch("/api/v1/admin/content/blogs/bloglist", {
+      credentials: 'include', // Include cookies for authentication
+    })
       .then((res) => {
         if (!res.ok) {
           console.error("❌ خطا در دریافت بلاگ‌ها:", res.status, res.statusText);
@@ -77,11 +80,6 @@ export default function BlogList() {
           // استخراج categories - بررسی ساختار مختلف
           let categories: string[] = [];
           if (blog.blogcategory && Array.isArray(blog.blogcategory) && blog.blogcategory.length > 0) {
-            // Debug log برای بررسی ساختار
-            if (process.env.NODE_ENV === 'development') {
-              console.log(`🔍 [BlogList] Blog ${blog.id} blogcategory structure:`, JSON.stringify(blog.blogcategory, null, 2));
-            }
-            
             categories = blog.blogcategory
               .map(category => {
                 // بررسی ساختار: category.translations[0].name
@@ -113,12 +111,6 @@ export default function BlogList() {
           
           const firstCategorySlug = categorySlugs[0] || "";
           
-          // Debug log
-          if (categories.length === 0 && blog.blogcategory && blog.blogcategory.length > 0) {
-            console.warn(`⚠️ [BlogList] Blog ${blog.id}: categories structure:`, JSON.stringify(blog.blogcategory, null, 2));
-            console.warn(`⚠️ [BlogList] Blog ${blog.id}: categories array is empty but blogcategory exists`);
-          }
-          
           // تولید slug کوتاه: فقط دسته‌بندی + عنوان (حداکثر 50 کاراکتر)
           const shortSlug = firstCategorySlug 
             ? `${firstCategorySlug}-${title.substring(0, 30).replace(/[^\u0600-\u06FFa-zA-Z0-9\s]/g, "").trim().replace(/\s+/g, "-")}`
@@ -130,7 +122,7 @@ export default function BlogList() {
           
           return {
             id: blog.id,
-            image: blog.image,
+            image: blog.image || "",
             name: title,
             category: categories.length > 0 ? categories.join(", ") : "بدون دسته‌بندی", 
             slug: shortSlug,
@@ -153,7 +145,7 @@ export default function BlogList() {
 
   const handleBulkDelete = async () => {
     const selectedIds = Object.entries(checkedItems)
-      .filter(([ isChecked]) => isChecked)
+      .filter(([ , isChecked]) => isChecked)
       .map(([id]) => parseInt(id)); // Get selected blog IDs
     
     if (selectedIds.length === 0) {
@@ -162,9 +154,10 @@ export default function BlogList() {
     }
   
     try {
-      const res = await fetch("/api/v1/admin/content/blogs/bulkDelete", {
+      const res = await fetch("/api/v1/admin/content/blogs/bulkdelete", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
+        credentials: 'include',
         body: JSON.stringify({ ids: selectedIds }),
       });
   
@@ -179,11 +172,14 @@ export default function BlogList() {
           });
           return newChecked;
         });
+        showAlert(`${selectedIds.length} بلاگ با موفقیت حذف شدند`, "success");
       } else {
         console.error("Bulk delete failed:", result.error);
+        showAlert("خطا در حذف بلاگ‌ها", "error");
       }
     } catch (err) {
       console.error("Error during bulk delete:", err);
+      showAlert("خطا در حذف بلاگ‌ها", "error");
     }
   
     setIsModalOpen(false); // Close the modal after deletion
@@ -202,10 +198,12 @@ const handleDelete = (id: number) => {
     try {
       const res = await fetch(`/api/v1/admin/content/blogs/${selectedBlogId}`, {
         method: 'DELETE',
+        credentials: 'include',
       });
   
       if (!res.ok) {
         console.error('Server responded with error:', res.status);
+        showAlert("خطا در حذف بلاگ", "error");
         return;
       }
   
@@ -213,6 +211,7 @@ const handleDelete = (id: number) => {
   
       if (!text) {
         console.error('Empty response from server');
+        showAlert("خطا در حذف بلاگ", "error");
         return;
       }
   
@@ -226,16 +225,18 @@ const handleDelete = (id: number) => {
           delete newChecked[selectedBlogId];
           return newChecked;
         });
+        showAlert("بلاگ با موفقیت حذف شد", "success");
       } else {
         console.error('Delete failed', result.error);
+        showAlert("خطا در حذف بلاگ", "error");
       }
     } catch (error) {
       console.error('Error deleting blog:', error);
+      showAlert("خطا در حذف بلاگ", "error");
     }
   
     setIsModalOpen(false); // بستن مودال پس از حذف
   };
-  
   
 
   const handleCancelDelete = () => {
@@ -311,9 +312,6 @@ const handleDelete = (id: number) => {
       }
     }
   };
-  
-  
-  
   
 
   return (
@@ -445,7 +443,7 @@ const handleDelete = (id: number) => {
                             <Image
                               width={50}
                               height={50}
-                              src={blog.image}
+                              src={blog.image.startsWith('/') ? blog.image : `/${blog.image}`}
                               className="h-full w-full object-cover"
                               alt={blog.name}
                             />

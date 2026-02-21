@@ -5,13 +5,13 @@ import {
   TableCell,
   TableHeader,
   TableRow,
-} from "@/components/Admin/ui/table";
-import Checkbox from "@/components/Admin/form/input/Checkbox";
+} from "@/components/admin/ui/table";
+import Checkbox from "@/components/admin/form/input/checkbox";
 import React, { useState, useEffect } from "react";
-import Button from "@/components/Admin/ui/button/Button";
-import Badge from "@/components/Admin/ui/badge/Badge";
-import { useAlert } from "@/context/Admin/AlertContext";
-import PageBreadcrumb from "@/components/Admin/common/PageBreadCrumb";
+import Button from "@/components/admin/ui/button/button";
+import Badge from "@/components/admin/ui/badge/badge";
+import { useAlert } from "@/context/admin/alertcontext";
+import PageBreadcrumb from "@/components/admin/common/pagebreadcrumb";
 import Image from "next/image";
 import Link from "next/link";
 

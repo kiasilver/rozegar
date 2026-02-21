@@ -7,7 +7,7 @@ import { generateSEO as generateAISEO } from "@/lib/content/seo/seo-ai";
 import { getAISettings } from "@/lib/ai/ai-settings";
 import { slugifyPersian } from "@/lib/utils/slugify-fa";
 import slugify from "slugify";
-import { isPersian } from "@/lib/utils/isPersian";
+import { isPersian } from "@/lib/utils/ispersian";
 
 const blogCategorySchema = z.object({
   name: z.string().min(3, "عنوان باید حداقل ۳ کاراکتر باشد"),

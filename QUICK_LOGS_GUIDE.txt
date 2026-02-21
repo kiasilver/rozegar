@@ -1,0 +1,34 @@
+╔══════════════════════════════════════════════════════════════╗
+║     راهنمای سریع دیدن لاگ‌های دقیق Next.js                  ║
+╚══════════════════════════════════════════════════════════════╝
+
+📋 روش 1: استفاده از اسکریپت (پیشنهادی)
+   ./monitor-nextjs.sh pages     # فقط لود صفحات
+   ./monitor-nextjs.sh requests  # فقط HTTP requests  
+   ./monitor-nextjs.sh errors    # فقط خطاها
+   ./monitor-nextjs.sh api       # فقط API calls
+   ./monitor-nextjs.sh all       # همه لاگ‌ها
+
+📋 روش 2: دستورات مستقیم
+   # دیدن لود صفحات
+   tail -f /tmp/nextjs.log | grep -E "\[HomePage\]|\[News Page\]|page"
+   
+   # دیدن HTTP requests
+   tail -f /tmp/nextjs.log | grep -E "GET|POST|PUT|DELETE"
+   
+   # دیدن خطاها
+   tail -f /tmp/nextjs.log | grep -i error
+
+📋 روش 3: جستجو در لاگ‌ها
+   # جستجوی یک صفحه خاص
+   grep "\[HomePage\]" /tmp/nextjs.log | tail -20
+   
+   # جستجوی یک API route
+   grep "/api/v1/public/blogs" /tmp/nextjs.log | tail -20
+
+📋 برای اعمال تغییرات (restart سرور):
+   killall node
+   cd /root/www && npm start > /tmp/nextjs.log 2>&1 &
+
+📋 فایل راهنمای کامل: DETAILED_LOGS_GUIDE.md
+

@@ -3,7 +3,7 @@ import { prisma } from '@/lib/core/prisma';
 import Link from 'next/link';
 import Image from 'next/image';
 import React from 'react';
-import SidebarRight from '@/components/Site/sidebar/sidebar_right';
+import SidebarRight from '@/components/site/sidebar/sidebar_right';
 
 // ISR - revalidate every hour for better performance
 export const revalidate = 3600;

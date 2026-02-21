@@ -1,8 +1,8 @@
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import AboutUsTemplate from "@/components/Admin/pages/AboutUsTemplate";
-import { useAlert } from "@/context/Admin/AlertContext";
+import AboutUsTemplate from "@/components/admin/pages/aboutustemplate";
+import { useAlert } from "@/context/admin/alertcontext";
 
 interface AboutUsData {
   heroTitle: string;

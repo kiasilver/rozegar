@@ -9,13 +9,13 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
-import GeneralSettings from '@/components/Admin/undefined-rss/GeneralSettings';
-import TelegramSettings from '@/components/Admin/undefined-rss/TelegramSettings';
-import WebsiteSettings from '@/components/Admin/undefined-rss/WebsiteSettings';
-import RSSFeeds from '@/components/Admin/undefined-rss/RSSFeeds';
-import PromptsEditor from '@/components/Admin/undefined-rss/PromptsEditor';
-import LogsTable from '@/components/Admin/undefined-rss/LogsTable';
-import ManualSend from '@/components/Admin/undefined-rss/ManualSend';
+import GeneralSettings from '@/components/admin/undefined-rss/generalsettings';
+import TelegramSettings from '@/components/admin/undefined-rss/telegramsettings';
+import WebsiteSettings from '@/components/admin/undefined-rss/websitesettings';
+import RSSFeeds from '@/components/admin/undefined-rss/rssfeeds';
+import PromptsEditor from '@/components/admin/undefined-rss/promptseditor';
+import LogsTable from '@/components/admin/undefined-rss/logstable';
+import ManualSend from '@/components/admin/undefined-rss/manualsend';
 
 function UnifiedRSSContent() {
   const searchParams = useSearchParams();

@@ -1,6 +1,6 @@
 "use client";
-import ComponentCard from "@/components/Admin/common/ComponentCard";
-import PageBreadcrumb from "@/components/Admin/common/PageBreadCrumb";
+import ComponentCard from "@/components/admin/common/componentcard";
+import PageBreadcrumb from "@/components/admin/common/pagebreadcrumb";
 import React, { useEffect, useState } from "react";
 import {
     Table,
@@ -8,15 +8,15 @@ import {
     TableCell,
     TableHeader,
     TableRow,
-} from "@/components/Admin/ui/table";
-import Badge from "@/components/Admin/ui/badge/Badge";
+} from "@/components/admin/ui/table";
+import Badge from "@/components/admin/ui/badge/badge";
 import Image from "next/image";
-import { useAlert } from "@/context/Admin/AlertContext";
-import Button from "@/components/Admin/ui/button/Button";
-import { Modal } from "@/components/Admin/ui/modal";
-import { useModal } from "@/hooks/Admin/useModal";
-import Input from "@/components/Admin/form/input/InputField";
-import Label from "@/components/Admin/form/Label";
+import { useAlert } from "@/context/admin/alertcontext";
+import Button from "@/components/admin/ui/button/button";
+import { Modal } from "@/components/admin/ui/modal";
+import { useModal } from "@/hooks/admin/usemodal";
+import Input from "@/components/admin/form/input/inputfield";
+import Label from "@/components/admin/form/label";
 import { z } from "zod";
 
 interface User {

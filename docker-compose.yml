@@ -24,6 +24,7 @@ services:
     environment:
       - NODE_ENV=production
       - DATABASE_URL=postgresql://postgres:mysecretpassword@db:5432/ultimatecms
+      - APP_DATABASE_URL=postgresql://postgres:mysecretpassword@db:5432/ultimatecms
     env_file:
       - .env
     depends_on:

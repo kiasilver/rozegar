@@ -10,7 +10,7 @@
 
 import { slugifyPersian } from "@/lib/utils/slugify-fa";
 import slugify from "slugify";
-import { isPersian } from "@/lib/utils/isPersian";
+import { isPersian } from "@/lib/utils/ispersian";
 import { prisma } from "@/lib/core/prisma";
 
 /**

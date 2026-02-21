@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import Badge from "@/components/Admin/ui/badge/Badge";
-import PageBreadcrumb from "@/components/Admin/common/PageBreadCrumb";
+import Badge from "@/components/admin/ui/badge/badge";
+import PageBreadcrumb from "@/components/admin/common/pagebreadcrumb";
 import dynamic from "next/dynamic";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import ArticleIcon from '@mui/icons-material/Article';

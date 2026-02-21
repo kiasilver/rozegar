@@ -1,17 +1,17 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import PageBreadcrumb from "@/components/Admin/common/PageBreadCrumb";
-import ComponentCard from '@/components/Admin/common/ComponentCard';
-import Badge from '@/components/Admin/ui/badge/Badge';
-import Button from '@/components/Admin/ui/button/Button';
-import { useAlert } from "@/context/Admin/AlertContext";
+import PageBreadcrumb from "@/components/admin/common/pagebreadcrumb";
+import ComponentCard from '@/components/admin/common/componentcard';
+import Badge from '@/components/admin/ui/badge/badge';
+import Button from '@/components/admin/ui/button/button';
+import { useAlert } from "@/context/admin/alertcontext";
 import dynamic from 'next/dynamic';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import WarningIcon from '@mui/icons-material/Warning';
 import ErrorIcon from '@mui/icons-material/Error';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import InfoIcon from '@mui/icons-material/Info';
-import { ResourceUsageChart } from "@/components/Admin/charts/ResourceUsageChart";
+import { ResourceUsageChart } from "@/components/admin/charts/system-resource-chart";
 
 // Lazy load chart component
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
@@ -64,7 +64,7 @@ export default function SystemMetricsPage() {
 
   useEffect(() => {
     fetchMetrics();
-    
+
     return () => {
       if (refreshInterval) {
         clearInterval(refreshInterval);
@@ -78,7 +78,7 @@ export default function SystemMetricsPage() {
         fetchMetrics();
       }, 30000); // هر 30 ثانیه
       setRefreshInterval(interval);
-      
+
       return () => clearInterval(interval);
     } else {
       if (refreshInterval) {
@@ -95,12 +95,12 @@ export default function SystemMetricsPage() {
       if (res.ok) {
         const data = await res.json();
         setMetrics(data);
-        
+
         // بررسی مشکلات و ارسال Notification در صورت نیاز
         if (data.issues && data.issues.length > 0) {
           const errors = data.issues.filter((issue: any) => issue.type === 'error');
           const warnings = data.issues.filter((issue: any) => issue.type === 'warning');
-          
+
           // فقط برای خطاهای جدید Notification ارسال می‌کنیم
           if (errors.length > 0) {
             for (const error of errors) {
@@ -256,7 +256,7 @@ export default function SystemMetricsPage() {
   return (
     <div className="space-y-6">
       <PageBreadcrumb pageTitle="متریک‌های سیستم" />
-      
+
       {/* Header با دکمه Refresh */}
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-800 dark:text-white">متریک‌های سیستم</h2>
@@ -299,22 +299,19 @@ export default function SystemMetricsPage() {
       <ComponentCard title="استفاده از منابع">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-6">
           <ResourceUsageChart
-            value={metrics?.cpu?.usage ?? 0}
+            value={metrics.cpu.usage}
             label="CPU"
-            color="#3b82f6"
-            size={200}
+            className="w-full"
           />
           <ResourceUsageChart
-            value={metrics?.ram?.usage ?? 0}
+            value={metrics.ram.usage}
             label="RAM"
-            color="#10b981"
-            size={200}
+            className="w-full"
           />
           <ResourceUsageChart
-            value={metrics?.disk?.usage ?? 0}
+            value={metrics.disk.usage}
             label="Disk"
-            color="#f59e0b"
-            size={200}
+            className="w-full"
           />
         </div>
       </ComponentCard>
@@ -339,10 +336,9 @@ export default function SystemMetricsPage() {
             </div>
             <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
               <div
-                className={`h-2.5 rounded-full ${
-                  metrics.cpu.usage > 90 ? 'bg-red-500' :
+                className={`h-2.5 rounded-full ${metrics.cpu.usage > 90 ? 'bg-red-500' :
                   metrics.cpu.usage > 70 ? 'bg-yellow-500' : 'bg-blue-500'
-                }`}
+                  }`}
                 style={{ width: `${Math.min(100, metrics.cpu.usage)}%` }}
               />
             </div>
@@ -374,10 +370,9 @@ export default function SystemMetricsPage() {
             </div>
             <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
               <div
-                className={`h-2.5 rounded-full ${
-                  metrics.ram.usage > 90 ? 'bg-red-500' :
+                className={`h-2.5 rounded-full ${metrics.ram.usage > 90 ? 'bg-red-500' :
                   metrics.ram.usage > 80 ? 'bg-yellow-500' : 'bg-green-500'
-                }`}
+                  }`}
                 style={{ width: `${Math.min(100, metrics.ram.usage)}%` }}
               />
             </div>
@@ -409,10 +404,9 @@ export default function SystemMetricsPage() {
             </div>
             <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
               <div
-                className={`h-2.5 rounded-full ${
-                  metrics.disk.usage > 90 ? 'bg-red-500' :
+                className={`h-2.5 rounded-full ${metrics.disk.usage > 90 ? 'bg-red-500' :
                   metrics.disk.usage > 80 ? 'bg-yellow-500' : 'bg-blue-500'
-                }`}
+                  }`}
                 style={{ width: `${Math.min(100, metrics.disk.usage)}%` }}
               />
             </div>
@@ -430,7 +424,7 @@ export default function SystemMetricsPage() {
             </div>
             <Badge color={getStatusColor(metrics.database.status)}>
               {metrics.database.status === 'healthy' ? 'سالم' :
-               metrics.database.status === 'slow' ? 'کند' : 'خطا'}
+                metrics.database.status === 'slow' ? 'کند' : 'خطا'}
             </Badge>
           </div>
           <div>
@@ -452,7 +446,7 @@ export default function SystemMetricsPage() {
             </div>
             <Badge color={getStatusColor(metrics.api.status)}>
               {metrics.api.status === 'healthy' ? 'سالم' :
-               metrics.api.status === 'warning' ? 'هشدار' : 'خطا'}
+                metrics.api.status === 'warning' ? 'هشدار' : 'خطا'}
             </Badge>
           </div>
           <div className="space-y-2">
@@ -483,20 +477,18 @@ export default function SystemMetricsPage() {
             {metrics.issues.map((issue, idx) => (
               <div
                 key={idx}
-                className={`p-4 rounded-lg border-l-4 ${
-                  issue.type === 'error' ? 'bg-red-50 dark:bg-red-900/20 border-red-500' :
+                className={`p-4 rounded-lg border-l-4 ${issue.type === 'error' ? 'bg-red-50 dark:bg-red-900/20 border-red-500' :
                   issue.type === 'warning' ? 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-500' :
-                  'bg-blue-50 dark:bg-blue-900/20 border-blue-500'
-                }`}
+                    'bg-blue-50 dark:bg-blue-900/20 border-blue-500'
+                  }`}
               >
                 <div className="flex items-start gap-3">
                   {getIssueIcon(issue.type)}
                   <div className="flex-1">
-                    <div className={`font-semibold ${
-                      issue.type === 'error' ? 'text-red-800 dark:text-red-200' :
+                    <div className={`font-semibold ${issue.type === 'error' ? 'text-red-800 dark:text-red-200' :
                       issue.type === 'warning' ? 'text-yellow-800 dark:text-yellow-200' :
-                      'text-blue-800 dark:text-blue-200'
-                    }`}>
+                        'text-blue-800 dark:text-blue-200'
+                      }`}>
                       {issue.message}
                     </div>
                     {issue.suggestion && (
@@ -519,4 +511,3 @@ export default function SystemMetricsPage() {
     </div>
   );
 }
-

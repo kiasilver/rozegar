@@ -6,7 +6,7 @@
 // Dynamic import برای کاهش مصرف RAM در startup
 // import sharp from 'sharp';
 import { slugifyPersian } from '@/lib/utils/slugify-fa';
-import { isPersian } from '@/lib/utils/isPersian';
+import { isPersian } from '@/lib/utils/ispersian';
 import slugify from 'slugify';
 
 // ==================== Helper Functions ====================
@@ -219,7 +219,7 @@ export async function addWatermarkToImage(
         top = padding;
         break;
       case 'top-left':
-        left = Math.max(0, padding); // از سمت چپ فاصله بگیرد (padding پیش‌فرض ۲۰)
+        left = 0; // بدون فاصله از سمت چپ
         top = 40; // 40 پیکسل از بالا
         break;
       case 'center':

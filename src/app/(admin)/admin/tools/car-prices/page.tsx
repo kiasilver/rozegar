@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import { FaClock, FaTelegram, FaGlobe, FaEdit, FaTrash, FaDatabase, FaPlus, FaTimes, FaSync, FaList, FaImage } from 'react-icons/fa';
-import MediaGalleryModal from '@/components/Admin/media/MediaGalleryModal';
+import MediaGalleryModal from '@/components/admin/media/mediagallerymodal';
 
 interface CarPriceSetting {
     id: number;

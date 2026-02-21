@@ -12,28 +12,28 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 // Dynamic imports for heavy components
-const GridShow = dynamic(() => import("@/components/Site/widget/GridShow"), {
+const GridShow = dynamic(() => import("@/components/site/widget/gridshow"), {
   loading: () => <div className="h-96 bg-gray-100 animate-pulse rounded-lg" />,
 });
-const Newpaper = dynamic(() => import("@/components/Site/widget/Newpaper"), {
+const Newpaper = dynamic(() => import("@/components/site/widget/newpaper"), {
   loading: () => <div className="h-64 bg-gray-100 animate-pulse rounded-lg" />,
 });
-const NewsSlider = dynamic(() => import("@/components/Site/news/news"), {
+const NewsSlider = dynamic(() => import("@/components/site/news/news"), {
   loading: () => <div className="h-64 bg-gray-100 animate-pulse rounded-lg" />,
 });
-const DatabaseSlider = dynamic(() => import("@/components/Site/news/DatabaseSlider"), {
+const DatabaseSlider = dynamic(() => import("@/components/site/news/databaseslider"), {
   loading: () => <div className="h-64 bg-gray-100 animate-pulse rounded-lg" />,
 });
-const AdBanner = dynamic(() => import("@/components/Site/ads/AdBanner"), {
+const AdBanner = dynamic(() => import("@/components/site/ads/adbanner"), {
   loading: () => null, // Don't show loading state for ads
 });
-const PriceListCarousel = dynamic(() => import("@/components/Site/widget/PriceListCarousel"), {
+const PriceListCarousel = dynamic(() => import("@/components/site/widget/pricelistcarousel"), {
   loading: () => null, // Don't show loading state
 });
-const CategorySlideshowGrid = dynamic(() => import("@/components/Site/widget/CategorySlideshowGrid"), {
+const CategorySlideshowGrid = dynamic(() => import("@/components/site/widget/categoryslideshowgrid"), {
   loading: () => <div className="h-96 bg-gray-100 animate-pulse rounded-lg" />,
 });
-const MostViewedSidebar = dynamic(() => import("@/components/Site/widget/MostViewedSidebar"), {
+const MostViewedSidebar = dynamic(() => import("@/components/site/widget/mostviewedsidebar"), {
   loading: () => <div className="h-64 bg-gray-100 animate-pulse rounded-lg" />,
 });
 

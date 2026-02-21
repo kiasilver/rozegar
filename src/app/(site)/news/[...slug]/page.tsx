@@ -8,8 +8,8 @@ import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/core/prisma';
 import Image from 'next/image';
 import Link from 'next/link';
-import SidebarRight from '@/components/Site/sidebar/sidebar_right';
-import AdBanner from '@/components/Site/ads/AdBanner';
+import SidebarRight from '@/components/site/sidebar/sidebar_right';
+import AdBanner from '@/components/site/ads/adbanner';
 import { generateArticleStructuredData } from '@/lib/content/seo/seo';
 
 // ISR - revalidate every hour

@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import PageBreadcrumb from "@/components/Admin/common/PageBreadCrumb";
-import ComponentCard from "@/components/Admin/common/ComponentCard";
-import Input from "@/components/Admin/form/input/InputField";
-import Label from "@/components/Admin/form/Label";
-import Button from "@/components/Admin/ui/button/Button";
-import Checkbox from "@/components/Admin/form/input/Checkbox";
-import { useAlert } from "@/context/Admin/AlertContext";
+import PageBreadcrumb from "@/components/admin/common/pagebreadcrumb";
+import ComponentCard from "@/components/admin/common/componentcard";
+import Input from "@/components/admin/form/input/inputfield";
+import Label from "@/components/admin/form/label";
+import Button from "@/components/admin/ui/button/button";
+import Checkbox from "@/components/admin/form/input/checkbox";
+import { useAlert } from "@/context/admin/alertcontext";
 import { DndContext, closestCenter, DragEndEvent } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';

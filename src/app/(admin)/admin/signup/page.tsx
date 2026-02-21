@@ -1,9 +1,9 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import Input from "@/components/Admin/form/input/InputField";
-import Button from "@/components/Admin/ui/button/Button";
-import Label from "@/components/Admin/form/Label";
-import { EyeCloseIcon, EyeIcon } from "@/icons/Admin";
+import Input from "@/components/admin/form/input/inputfield";
+import Button from "@/components/admin/ui/button/button";
+import Label from "@/components/admin/form/label";
+import { EyeCloseIcon, EyeIcon } from "@/icons/admin";
 import { InputOtp, Form } from "@heroui/react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";

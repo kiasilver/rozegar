@@ -1,12 +1,12 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import PageBreadcrumb from "@/components/Admin/common/PageBreadCrumb";
-import ComponentCard from '@/components/Admin/common/ComponentCard';
-import Label from '@/components/Admin/form/Label';
-import Input from '@/components/Admin/form/input/InputField';
-import Button from '@/components/Admin/ui/button/Button';
-import { useAlert } from "@/context/Admin/AlertContext";
+import PageBreadcrumb from "@/components/admin/common/pagebreadcrumb";
+import ComponentCard from '@/components/admin/common/componentcard';
+import Label from '@/components/admin/form/label';
+import Input from '@/components/admin/form/input/inputfield';
+import Button from '@/components/admin/ui/button/button';
+import { useAlert } from "@/context/admin/alertcontext";
 import Image from 'next/image';
 
 interface UserProfile {

@@ -2,8 +2,8 @@
 import { prisma } from '@/lib/core/prisma';
 import Link from 'next/link';
 import Image from 'next/image';
-import AdBanner from '@/components/Site/ads/AdBanner';
-import SidebarRight from '@/components/Site/sidebar/sidebar_right';
+import AdBanner from '@/components/site/ads/adbanner';
+import SidebarRight from '@/components/site/sidebar/sidebar_right';
 import { generateWebsiteStructuredData } from '@/lib/content/seo/seo';
 
 // ISR - revalidate every hour for better performance

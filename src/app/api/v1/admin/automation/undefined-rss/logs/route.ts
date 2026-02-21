@@ -12,7 +12,8 @@ export async function GET(req: NextRequest) {
     const searchParams = req.nextUrl.searchParams;
     const page = parseInt(searchParams.get('page') || '1');
     const limit = Math.min(parseInt(searchParams.get('limit') || '50'), 100);
-    const type = searchParams.get('type'); // 'telegram', 'website', 'rss'
+    const target = searchParams.get('target'); // 'telegram', 'website', 'both', 'all'
+    const status = searchParams.get('status'); // 'success', 'failed', 'all'
     const skip = (page - 1) * limit;
 
     // Try to fetch logs - handle case where table may not exist
@@ -21,10 +22,25 @@ export async function GET(req: NextRequest) {
 
     try {
       const where: any = {};
-      if (type === 'telegram') {
-        where.telegram_sent = true;
-      } else if (type === 'website') {
-        where.website_sent = true;
+      
+      // Filter by target
+      if (target && target !== 'all') {
+        where.target = target;
+      }
+      
+      // Filter by status
+      if (status && status !== 'all') {
+        if (status === 'success') {
+          where.OR = [
+            { telegram_sent: true },
+            { website_sent: true },
+          ];
+        } else if (status === 'failed') {
+          where.AND = [
+            { telegram_sent: false },
+            { website_sent: false },
+          ];
+        }
       }
 
       [logs, total] = await Promise.all([
@@ -43,9 +59,11 @@ export async function GET(req: NextRequest) {
             telegram_sent: true,
             telegram_status: true,
             telegram_error: true,
+            telegram_message_id: true,
             website_sent: true,
             website_status: true,
             website_error: true,
+            website_blog_id: true,
             website_slug: true,
             created_at: true,
             processed_at: true,
@@ -80,19 +98,30 @@ export async function GET(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
-    const searchParams = req.nextUrl.searchParams;
-    const id = searchParams.get('id');
+    const body = await req.json().catch(() => ({}));
+    const ids = body.ids;
 
-    if (id) {
-      await prisma.unifiedRSSLog.delete({ where: { id: parseInt(id) } });
+    if (ids && Array.isArray(ids) && ids.length > 0) {
+      // Delete multiple logs by IDs
+      await prisma.unifiedRSSLog.deleteMany({
+        where: {
+          id: { in: ids.map((id: any) => parseInt(id)) },
+        },
+      });
     } else {
-      // Clear all logs
-      await prisma.unifiedRSSLog.deleteMany({});
+      // If no IDs provided, don't delete anything
+      return NextResponse.json({ 
+        success: false, 
+        error: 'شناسه‌های لاگ مشخص نشده است' 
+      }, { status: 400 });
     }
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
     console.error('[RSS Logs] Delete error:', error.message);
-    return NextResponse.json({ success: true }); // Don't fail on delete errors
+    return NextResponse.json({ 
+      success: false, 
+      error: error.message || 'خطا در حذف لاگ‌ها' 
+    }, { status: 500 });
   }
 }

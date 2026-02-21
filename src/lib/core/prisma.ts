@@ -25,15 +25,31 @@ const createPool = (): Pool => {
     return globalForPrisma.pgPool;
   }
 
+  const connectionString = process.env.APP_DATABASE_URL || process.env.DATABASE_URL;
+  
+  if (!connectionString) {
+    throw new Error('❌ [Prisma] DATABASE_URL or APP_DATABASE_URL must be set in environment variables');
+  }
+
+  // Log connection info (without password) for debugging
+  if (process.env.NODE_ENV === 'development') {
+    const maskedUrl = connectionString.replace(/:[^:@]+@/, ':****@');
+    console.log(`🔌 [Prisma] Connecting to database: ${maskedUrl}`);
+  }
+
   const pool = new Pool({
-    connectionString: process.env.APP_DATABASE_URL,
-    // Connection pool settings optimized for Next.js
-    max: parseInt(process.env.DATABASE_POOL_MAX || '10', 10), // Maximum pool size
-    min: parseInt(process.env.DATABASE_POOL_MIN || '2', 10), // Minimum pool size
-    idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
-    connectionTimeoutMillis: 5000, // Timeout after 5 seconds if connection cannot be established
+    connectionString,
+    // Connection pool settings - محدودیت شدید برای جلوگیری از CPU بالا
+    max: parseInt(process.env.DATABASE_POOL_MAX || '3', 10), // کاهش به 3
+    min: parseInt(process.env.DATABASE_POOL_MIN || '0', 10), // کاهش به 0
+    idleTimeoutMillis: 5000, // کاهش به 5 ثانیه
+    connectionTimeoutMillis: 3000, // کاهش به 3 ثانیه
     // SSL configuration (if needed)
     ssl: process.env.DATABASE_SSL === 'true' ? { rejectUnauthorized: false } : false,
+    // اضافه کردن statement_timeout برای جلوگیری از query های بی‌نهایت
+    statement_timeout: 3000, // 3 ثانیه timeout برای هر query
+    // محدودیت query execution time
+    query_timeout: 3000, // 3 ثانیه
   });
 
   // Handle pool errors

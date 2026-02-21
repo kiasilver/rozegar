@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/core/prisma";
 import { slugifyPersian } from "@/lib/utils/slugify-fa";
 import slugify from "slugify";
-import { isPersian } from "@/lib/utils/isPersian";
+import { isPersian } from "@/lib/utils/ispersian";
 
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: idParam } = await params;

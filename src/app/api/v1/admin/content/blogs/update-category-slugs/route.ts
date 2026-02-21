@@ -9,7 +9,7 @@ import { jwtVerify } from "jose";
 import { prisma } from "@/lib/core/prisma";
 import { slugifyPersian } from "@/lib/utils/slugify-fa";
 import slugify from "slugify";
-import { isPersian } from "@/lib/utils/isPersian";
+import { isPersian } from "@/lib/utils/ispersian";
 
 async function verifyJWT(token: string) {
   try {

@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import PageBreadcrumb from "@/components/Admin/common/PageBreadCrumb";
-import ComponentCard from "@/components/Admin/common/ComponentCard";
-import Input from "@/components/Admin/form/input/InputField";
-import Select from "@/components/Admin/form/Select";
-import Button from "@/components/Admin/ui/button/Button";
+import PageBreadcrumb from "@/components/admin/common/pagebreadcrumb";
+import ComponentCard from "@/components/admin/common/componentcard";
+import Input from "@/components/admin/form/input/inputfield";
+import Select from "@/components/admin/form/select";
+import Button from "@/components/admin/ui/button/button";
 import Image from "next/image";
 import SearchIcon from "@mui/icons-material/Search";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -16,7 +16,7 @@ import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import FontDownloadIcon from "@mui/icons-material/FontDownload";
 import DescriptionIcon from "@mui/icons-material/Description";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import { useAlert } from "@/context/Admin/AlertContext";
+import { useAlert } from "@/context/admin/alertcontext";
 
 interface MediaFile {
   url: string;
@@ -105,20 +105,27 @@ export default function MediaGalleryPage() {
       const res = await fetch(`/api/v1/admin/media/delete?url=${encodeURIComponent(url)}`, {
         method: 'DELETE',
       });
+      
       if (res.ok) {
-        setFiles(prev => prev.filter(f => f.url !== url));
-        setSelectedFiles(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(url);
-          return newSet;
-        });
-        showAlert('فایل با موفقیت حذف شد', 'success');
+        const data = await res.json();
+        if (data.success) {
+          setFiles(prev => prev.filter(f => f.url !== url));
+          setSelectedFiles(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(url);
+            return newSet;
+          });
+          showAlert('فایل با موفقیت حذف شد', 'success');
+        } else {
+          showAlert(data.error || 'خطا در حذف فایل', 'error');
+        }
       } else {
-        showAlert('خطا در حذف فایل', 'error');
+        const errorData = await res.json().catch(() => ({ error: `خطا ${res.status}: ${res.statusText}` }));
+        showAlert(errorData.error || 'خطا در حذف فایل', 'error');
       }
     } catch (error) {
       console.error('Error deleting file:', error);
-      showAlert('خطا در حذف فایل', 'error');
+      showAlert('خطا در حذف فایل: ' + (error instanceof Error ? error.message : 'خطای ناشناخته'), 'error');
     } finally {
       setDeleting(null);
     }

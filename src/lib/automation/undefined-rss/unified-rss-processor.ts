@@ -882,10 +882,16 @@ async function processCombinedContent(
     .replace(/{telegramLimit}/g, telegramLimit)
     .replace(/{websiteLimitInstruction}/g, websiteLimitInstruction);
 
-  // استفاده از Gemini برای پردازش ترکیبی
+  // استفاده از provider از تنظیمات (defaultProvider)
+  const { getAISettings } = await import('@/lib/ai/ai-settings');
+  const aiSettings = await getAISettings();
+  const provider = aiSettings.defaultProvider || 'openai';
+  
+  console.log(`[UnifiedProcessor] 🔄 Using provider: ${provider} for combined processing`);
+  
   const generated = await generateContent(prompt, undefined, {
     temperature: 0.7,
-    preferredProvider: 'gemini' // استفاده از Gemini
+    preferredProvider: provider // استفاده از provider از تنظیمات
   });
 
   let json: any;

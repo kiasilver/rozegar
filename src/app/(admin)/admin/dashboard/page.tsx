@@ -1,9 +1,9 @@
 "use client";
 import React, { useEffect, useState, useMemo } from "react";
 import dynamic from "next/dynamic";
-import LoadingSpinner from "@/components/Admin/common/LoadingSpinner";
+import LoadingSpinner from "@/components/admin/common/loadingspinner";
 import Link from "next/link";
-import { StatCard } from "@/components/Admin/dashboard/StatCard";
+import { StatCard } from "@/components/admin/dashboard/statcard";
 
 
 // Lazy load chart component

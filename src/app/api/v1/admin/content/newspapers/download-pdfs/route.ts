@@ -8,6 +8,10 @@ import { cookies } from 'next/headers';
 import { jwtVerify } from 'jose';
 import { prisma } from '@/lib/core/prisma';
 
+// افزایش timeout برای این route (5 دقیقه)
+export const maxDuration = 300;
+export const dynamic = 'force-dynamic';
+
 async function verifyJWT(token: string) {
   try {
     const secret = new TextEncoder().encode(process.env.JWT_SECRET!);

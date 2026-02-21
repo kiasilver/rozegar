@@ -1,0 +1,111 @@
+Building web
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  29.34MB
+Step 1/33 : FROM node:20-alpine AS base
+ ---> 458b0b7c1c60
+Step 2/33 : FROM base AS deps
+ ---> 458b0b7c1c60
+Step 3/33 : RUN apk add --no-cache libc6-compat python3 make g++ pkgconfig pixman-dev cairo-dev pango-dev jpeg-dev giflib-dev librsvg-dev
+ ---> Using cache
+ ---> 8e21a6abd864
+Step 4/33 : WORKDIR /app
+ ---> Using cache
+ ---> 5af63c075dfc
+Step 5/33 : COPY package.json package-lock.json* ./
+ ---> Using cache
+ ---> 27f10729784b
+Step 6/33 : RUN CXXFLAGS="-include cstdint" npm ci
+ ---> Using cache
+ ---> ae52ba118b59
+Step 7/33 : FROM base AS builder
+ ---> 458b0b7c1c60
+Step 8/33 : WORKDIR /app
+ ---> Using cache
+ ---> 605ee8f1c430
+Step 9/33 : COPY --from=deps /app/node_modules ./node_modules
+ ---> Using cache
+ ---> d6570d90e593
+Step 10/33 : COPY . .
+ ---> efc536e5b26f
+Step 11/33 : ENV NEXT_TELEMETRY_DISABLED 1
+ ---> Running in 3e5c576daa6e
+ ---> Removed intermediate container 3e5c576daa6e
+ ---> a295ee147e24
+Step 12/33 : ENV APP_DATABASE_URL="postgresql://postgres:password@localhost:5432/db"
+ ---> Running in 8b3dd48666d6
+ ---> Removed intermediate container 8b3dd48666d6
+ ---> 6bda0ce677dc
+Step 13/33 : RUN npx prisma generate
+ ---> Running in 618de958ada2
+[91mLoaded Prisma config from prisma.config.ts.
+
+[0m[91mPrisma schema loaded from prisma/schema.prisma.
+[0m
+✔ Generated Prisma Client (v7.2.0) to ./node_modules/.prisma/client in 704ms
+
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+
+Tip: Want to turn off tips and other hints? https://pris.ly/tip-4-nohints
+
+[91mnpm notice
+npm notice New major version of npm available! 10.8.2 -> 11.10.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.10.1
+npm notice To update run: npm install -g npm@11.10.1
+npm notice
+[0m ---> Removed intermediate container 618de958ada2
+ ---> 7fb0932cdb14
+Step 14/33 : ENV NODE_ENV production
+ ---> Running in f1af4511a81f
+ ---> Removed intermediate container f1af4511a81f
+ ---> 48039594dc5f
+Step 15/33 : RUN npm run build
+ ---> Running in 9d58d4db279c
+
+> free-nextjs-admin-dashboard@2.0.2 build
+> next build
+
+▲ Next.js 16.1.1 (Turbopack)
+- Experiments (use with caution):
+  · serverActions
+
+  Creating an optimized production build ...
+[91m
+[0m[91m> Build error occurred
+[0m[91mError: Turbopack build failed with 1 errors:
+./src/app/(admin)/admin/setting/metrics/page.tsx:14:1
+Module not found: Can't resolve '@/components/admin/charts/system-resource-chart'
+[0m [90m 12 |[39m [36mimport[39m [33mCheckCircleIcon[39m [36mfrom[39m [32m'@mui/icons-material/CheckCircle'[39m[33m;[39m
+ [90m 13 |[39m [36mimport[39m [33mInfoIcon[39m [36mfrom[39m [32m'@mui/icons-material/Info'[39m[33m;[39m
+[31m[1m>[22m[39m[90m 14 |[39m [36mimport[39m { [33mResourceUsageChart[39m } [36mfrom[39m [32m"@/components/admin/charts/system-resource-chart"[39m[33m;[39m
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 15 |[39m
+ [90m 16 |[39m [90m// Lazy load chart component[39m
+ [90m 17 |[39m [36mconst[39m [33mChart[39m [33m=[39m dynamic(() [33m=>[39m [36mimport[39m([32m"react-apexcharts"[39m)[33m,[39m { ssr[33m:[39m [36mfalse[39m })[33m;[39m[0m
+
+Import map: aliased to relative './src/components/admin/charts/system-resource-chart' inside of [project]/
+
+
+Import traces:
+  Client Component Browser:
+    ./src/app/(admin)/admin/setting/metrics/page.tsx [Client Component Browser]
+    ./src/app/(admin)/admin/setting/metrics/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/(admin)/admin/setting/metrics/page.tsx [Client Component SSR]
+    ./src/app/(admin)/admin/setting/metrics/page.tsx [Server Component]
+
+  App Route:
+    ./src/app/(admin)/admin/setting/metrics/page.tsx
+    ./src/lib/automation/telegram/telegram-bot.ts
+    ./src/app/api/webhooks/cron/price-ticker/route.ts
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+    at <unknown> (./src/app/(admin)/admin/setting/metrics/page.tsx:14:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+[0mThe command '/bin/sh -c npm run build' returned a non-zero code: 1
+Service 'web' failed to build : Build failed

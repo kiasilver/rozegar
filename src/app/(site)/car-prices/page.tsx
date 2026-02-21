@@ -1,7 +1,7 @@
 
 import { Metadata } from 'next';
 import { prisma } from '@/lib/core/prisma';
-import CarPriceList from './CarPriceList';
+import CarPriceList from './carpricelist';
 import { generateWorldClassMetadata } from '@/lib/content/seo/seo';
 import Script from 'next/script';
 

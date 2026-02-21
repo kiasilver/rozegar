@@ -1,30 +1,33 @@
 /**
- * Categories API (v1)
- * این route به API قدیمی redirect می‌کند
+ * Categories API - Get all blog categories
  */
 
-import { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/core/prisma';
 
-export async function GET(req: NextRequest) {
-  const url = new URL(req.url);
-  url.pathname = '/api/v1/admin/content/blogs/category';
-  
-  return fetch(url.toString(), {
-    method: 'GET',
-    headers: req.headers,
-  });
+export const dynamic = 'force-dynamic';
+
+// GET - List all blog categories
+export async function GET() {
+  try {
+    const categories = await prisma.blogCategory.findMany({
+      include: {
+        translations: true,
+      },
+      orderBy: [
+        { order: 'asc' },
+        { id: 'asc' },
+      ],
+    });
+
+    return NextResponse.json(categories);
+  } catch (error: any) {
+    console.error('[Categories] GET Error:', error.message);
+    return NextResponse.json(
+      { success: false, error: 'خطا در دریافت دسته‌بندی‌ها' },
+      { status: 500 }
+    );
+  }
 }
 
-export async function POST(req: NextRequest) {
-  const url = new URL(req.url);
-  url.pathname = '/api/v1/admin/content/blogs/category';
-  
-  const body = await req.text();
-  
-  return fetch(url.toString(), {
-    method: 'POST',
-    headers: req.headers,
-    body,
-  });
-}
 

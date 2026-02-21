@@ -1,6 +1,6 @@
 "use client"
 import React, { useState } from 'react';
-import Lastnews from '@/components/Site/widget/Lastnews';
+import Lastnews from '@/components/site/widget/lastnews';
 
 
 const Article2: React.FC = () => {

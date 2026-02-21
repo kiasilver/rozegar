@@ -1,7 +1,7 @@
 ﻿"use client";
 import { useEffect, useState } from 'react';
 import { IRFONT } from '@/lib/utils/fonts';
-import { SSEProvider } from '@/providers/SSEProvider';
+import { SSEProvider } from '@/providers/sseprovider';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const [isHydrated, setIsHydrated] = useState(false);

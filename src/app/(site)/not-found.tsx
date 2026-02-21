@@ -1,4 +1,4 @@
-import GridShape from "@/components/Shared/common/GridShape";
+import GridShape from "@/components/shared/common/gridshape";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";

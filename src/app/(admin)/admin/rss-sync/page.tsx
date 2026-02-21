@@ -1,10 +1,10 @@
 "use client";
 import { useState, useEffect } from "react";
-import PageBreadcrumb from "@/components/Admin/common/PageBreadCrumb";
-import Label from "@/components/Admin/form/Label";
-import Input from "@/components/Admin/form/input/InputField";
-import Button from "@/components/Admin/ui/button/Button";
-import Checkbox from "@/components/Admin/form/input/Checkbox";
+import PageBreadcrumb from "@/components/admin/common/pagebreadcrumb";
+import Label from "@/components/admin/form/label";
+import Input from "@/components/admin/form/input/inputfield";
+import Button from "@/components/admin/ui/button/button";
+import Checkbox from "@/components/admin/form/input/checkbox";
 
 interface RSSBlog {
   id: number;

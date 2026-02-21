@@ -5,6 +5,7 @@
  */
 
 import { generateContent } from '@/lib/ai/ai-generator';
+import { getAISettings } from '@/lib/ai/ai-settings';
 
 export interface WebsiteContentOptions {
   title: string;
@@ -206,14 +207,20 @@ export async function generateWebsiteContent(
     // ساخت prompt
     const prompt = createPrompt(options, mode);
 
-    // تولید محتوا - استفاده از Gemini با fallback به Backboard
+    // دریافت تنظیمات AI و استفاده از defaultProvider
+    const aiSettings = await getAISettings();
+    const provider = aiSettings.defaultProvider || 'openai';
+    
+    console.log(`[WebsiteContentAgent] 🤖 Using AI provider: ${provider} (from settings)`);
+
+    // تولید محتوا - استفاده از provider از تنظیمات با fallback خودکار
     let generated;
     try {
       generated = await generateContent(prompt, undefined, {
-        preferredProvider: 'gemini' // استفاده از Gemini برای تولید محتوای وبسایت
+        preferredProvider: provider // استفاده از provider از تنظیمات
       });
     } catch (error: any) {
-      // اگر Gemini خطا داد (quota یا خطای دیگر)، از fallback استفاده می‌شود
+      // اگر provider خطا داد (quota یا خطای دیگر)، از fallback استفاده می‌شود
       // fallback در generateContent خودش انجام می‌شود
       throw error;
     }
